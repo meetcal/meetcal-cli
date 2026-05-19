@@ -1,0 +1,15 @@
+// make files in commands/ accesible to main.rs
+pub mod adaptive;
+pub mod club_results;
+pub mod intl_rankings;
+pub mod meet;
+pub mod meet_results;
+pub mod nat_rankings;
+pub mod qual_totals;
+pub mod records;
+pub mod search;
+pub mod standards;
+pub mod usamw_results;
+pub mod wso_owlcms;
+pub mod wso_records;
+pub mod wso_results;

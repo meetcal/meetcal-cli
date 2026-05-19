@@ -1,0 +1,18 @@
+use clap::Parser;
+
+/// Get full meet results for a given WSO.
+///
+/// Examples:
+///   meetcal wso --meet "2026 Virus Weightlifting Finals, Powered by Rogue Fitness" --wso Carolina
+///   meetcal wso "2026 Virus Weightlifting Finals, Powered by Rogue Fitness" Carolina
+#[derive(Parser)]
+#[command(name = "wso")]
+pub struct WsoResultsArgs {
+    /// Meet to search for
+    pub meet: String,
+
+    /// WSO to search for
+    pub wso: String,
+}
+
+pub fn run(_args: WsoResultsArgs, _convex_url: &str) {}
