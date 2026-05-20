@@ -1,4 +1,7 @@
-#[derive(Debug)]
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PdfTextItem {
     pub text: String,
     pub x: f64,
@@ -6,7 +9,8 @@ pub struct PdfTextItem {
     pub is_red: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UsamwScraperArgs {
     pub meet: Option<String>,
     pub date: Option<String>,

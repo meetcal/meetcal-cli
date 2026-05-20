@@ -1,17 +1,21 @@
-#[derive(Debug)]
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize)]
 pub enum Movement {
     Snatch,
     CleanAndJerk,
     Total,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AthleteRow {
     pub name: String,
     pub wso: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ClubPrDetail {
     pub name: String,
     pub movement: Movement,
@@ -19,7 +23,8 @@ pub struct ClubPrDetail {
     pub previous_pr: i32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ClubMedalDetail {
     pub name: String,
     pub age: String,

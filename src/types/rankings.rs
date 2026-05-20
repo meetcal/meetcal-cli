@@ -1,4 +1,7 @@
-#[derive(Debug)]
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Rankings {
     pub ranking: u32,
     pub name: String,

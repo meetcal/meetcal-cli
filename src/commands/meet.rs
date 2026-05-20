@@ -18,16 +18,19 @@ use std::collections::BTreeMap;
 pub struct MeetArgs {
     /// Meet to search for
     pub name: String,
-    // Session number to search for
-    // #[arg(long, short = 's')]
-    // pub session_number: Option<f32>,
 
-    // Session platform to search for
-    // #[arg(long, short = 'p')]
-    // pub session_platform: Option<Platform>,
+    /// Session number to search for
+    #[arg(long, short = 's')]
+    pub session_number: Option<f32>,
+
+    /// Session platform to search for
+    #[arg(long, short = 'p')]
+    pub session_platform: Option<Platform>,
 }
 
 pub async fn run(args: MeetArgs, convex_url: &str) -> Result<()> {
+    // TODO: for whatever reason num and platform are invalid to convex
+    // need to update convex fn through meetcal to allow this
     let meet_name = args.name;
     // let session_number = args.session_number.map(|n| n as f64);
     // let session_platform = args.session_platform.map(|p| match p {
@@ -55,7 +58,6 @@ pub async fn run(args: MeetArgs, convex_url: &str) -> Result<()> {
 
     let result = convex.query("athletes:getByMeet", query_args).await?;
 
-    // bail returns error we can handle vs panic would crash and quit
     let athletes: Vec<Athletes> = match result {
         // convex returns value not string so use serde to parse
         FunctionResult::Value(val) => {
@@ -63,6 +65,7 @@ pub async fn run(args: MeetArgs, convex_url: &str) -> Result<()> {
             serde_json::from_value(json_value)
                 .context("Failed to parse athletes from convex response")?
         }
+        // bail returns error we can handle vs panic would crash and quit
         FunctionResult::ErrorMessage(err) => bail!(err),
         FunctionResult::ConvexError(err) => bail!("ConvexError: {err:?}"),
     };

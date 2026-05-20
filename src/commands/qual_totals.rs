@@ -1,23 +1,74 @@
-use clap::Parser;
-
 use crate::types::qual_totals::QualifyingTotal;
+use anyhow::{Context, Result, bail};
+use clap::Parser;
+use comfy_table::Table;
+use convex::{ConvexClient, FunctionResult, Value};
+use std::collections::BTreeMap;
 
 /// Search for Qualifying Totals for a given age, gender, and event.
 ///
 /// Examples:
-///   meetcal qualifyingTotals --age Senior --gender Men --event Nationals
-///   meetcal qualifyingTotals U17 Women AO Finals
+///   meetcal qualifying-totals --age Senior --gender Men --event Nationals
+///   meetcal qualifying-totals U17 Women AO Finals
 #[derive(Parser)]
-#[command(name = "qualifyingTotals")]
+#[command(name = "qualifying-totals")]
 pub struct QualTotalsArgs {
     /// Age group to search for
+    #[arg(long, short = 'a')]
     pub age: String,
 
     /// Gender group to search for
+    #[arg(long, short = 'g')]
     pub gender: String,
 
     /// Event to search for
+    #[arg(long, short = 'e')]
     pub event: String,
 }
 
-pub fn run(_args: QualTotalsArgs, _convex_url: &str) {}
+pub async fn run(args: QualTotalsArgs, convex_url: &str) -> Result<()> {
+    // assign args to vars
+    let age = args.age;
+    let gender = args.gender;
+    let event = args.event;
+
+    // get convex
+    let mut convex = ConvexClient::new(convex_url)
+        .await
+        .context("Error with the convex url")?;
+    let mut query_args = BTreeMap::new();
+
+    //insert args to map
+    query_args.insert("ageCategory".to_string(), Value::from(age));
+    query_args.insert("gender".to_string(), Value::from(gender));
+    query_args.insert("eventName".to_string(), Value::from(event));
+
+    let result = convex
+        .query("qualifyingTotals:getFiltered", query_args)
+        .await?;
+
+    // parse value convex
+    let totals: Vec<QualifyingTotal> = match result {
+        // convex returns value not string so use serde to parse
+        FunctionResult::Value(val) => {
+            let json_value = serde_json::Value::from(val);
+            serde_json::from_value(json_value)
+                .context("Failed to parse athletes from convex response")?
+        }
+        // bail returns error we can handle vs panic would crash and quit
+        FunctionResult::ErrorMessage(err) => bail!(err),
+        FunctionResult::ConvexError(err) => bail!("ConvexError: {err:?}"),
+    };
+
+    // push to table
+    let mut table = Table::new();
+    table.set_header(vec!["Class", "Total"]);
+
+    for total in totals {
+        table.add_row(vec![total.weight_class, total.qualifying_total.to_string()]);
+    }
+
+    println!("{table}");
+
+    Ok(())
+}

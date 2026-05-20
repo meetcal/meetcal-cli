@@ -1,16 +1,18 @@
-use std::collections::HashMap;
-
 use super::lifting_results::LiftingResults;
 use super::wso::{ClubMedalDetail, ClubPrDetail};
+use serde::Deserialize;
+use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AttemptStats {
     pub made: u32,
     pub missed: u32,
     pub total: u32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ClubMeetPerformanceStats {
     pub total_athletes: u32,
     pub total_results: u32,
@@ -31,7 +33,8 @@ pub struct ClubMeetPerformanceStats {
     pub posted_total_rate: f64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ClubPrStats {
     pub snatch_prs: u32,
     pub cj_prs: u32,
@@ -39,14 +42,16 @@ pub struct ClubPrStats {
     pub details: Vec<ClubPrDetail>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ClubMedalCounts {
     pub total: u32,
     pub snatch: u32,
     pub cj: u32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ClubMedalStats {
     pub total_medals: u32,
     pub snatch_medals: u32,

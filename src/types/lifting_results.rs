@@ -1,4 +1,7 @@
-#[derive(Debug)]
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LiftingResults {
     pub id: Option<u64>,
     pub convex_id: Option<String>,
@@ -23,7 +26,8 @@ pub struct LiftingResults {
     pub adaptive: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AdaptiveRecord {
     pub weight_class: String,
     pub snatch: i32,

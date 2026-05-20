@@ -1,10 +1,12 @@
-#[derive(Debug)]
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize)]
 pub enum Gender {
     Men,
     Women,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
 pub enum Federation {
     Iwf,
     Usamw,
@@ -12,7 +14,8 @@ pub enum Federation {
     Umwf,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Record {
     pub weight_class: String,
     pub snatch_record: i32,

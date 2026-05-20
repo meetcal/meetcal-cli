@@ -16,7 +16,7 @@ async fn main() -> Result<()> {
         Commands::Meet(args) => commands::meet::run(args, CONVEX_URL).await?,
         Commands::MeetResults(args) => commands::meet_results::run(args, CONVEX_URL),
         Commands::NatRankings(args) => commands::nat_rankings::run(args, CONVEX_URL),
-        Commands::QualifyingTotals(args) => commands::qual_totals::run(args, CONVEX_URL),
+        Commands::QualifyingTotals(args) => commands::qual_totals::run(args, CONVEX_URL).await?,
         Commands::Records(args) => commands::records::run(args, CONVEX_URL),
         Commands::Search(args) => commands::search::run(args, CONVEX_URL),
         Commands::Standards(args) => commands::standards::run(args, CONVEX_URL),

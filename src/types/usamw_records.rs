@@ -1,4 +1,7 @@
-#[derive(Debug)]
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct WeightClassRecord {
     pub weight_class: String,
     pub snatch_record: i32,
@@ -6,13 +9,15 @@ pub struct WeightClassRecord {
     pub total_record: i32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AgeGroupRecords {
     pub men: Vec<WeightClassRecord>,
     pub women: Vec<WeightClassRecord>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UsamwRecordsData {
     pub masters_35_39: AgeGroupRecords,
     pub masters_40_44: AgeGroupRecords,

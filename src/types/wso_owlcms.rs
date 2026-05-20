@@ -1,4 +1,6 @@
-#[derive(Debug)]
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize)]
 pub enum CarolinaTab {
     Youth,
     Junior,
@@ -6,7 +8,8 @@ pub enum CarolinaTab {
     Masters,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct WsoOwlCmsReferenceMeta {
     pub age_min: String,
     pub age_max: String,
@@ -14,7 +17,8 @@ pub struct WsoOwlCmsReferenceMeta {
     pub body_weight_max: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct WsoOwlCmsParsedLift {
     pub lift: String,
     pub record: Option<i32>,
@@ -23,7 +27,8 @@ pub struct WsoOwlCmsParsedLift {
     pub place: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct WsoOwlCmsParsedBlock {
     pub weight_class: String,
     pub age_group: String,

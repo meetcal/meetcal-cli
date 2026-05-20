@@ -1,6 +1,8 @@
 use super::lifting_results::LiftingResults;
+use serde::Deserialize;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AthleteClub {
     pub member_id: String,
     pub name: String,
@@ -8,7 +10,8 @@ pub struct AthleteClub {
     pub meet: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ClubMeetStats {
     pub total_athletes: u32,
     pub gold_medals: u32,
@@ -20,7 +23,8 @@ pub struct ClubMeetStats {
     pub athlete_results: Vec<LiftingResults>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AthleteInfo {
     pub name: String,
     pub age: u32,
@@ -28,13 +32,15 @@ pub struct AthleteInfo {
     pub weight_class: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AthleteWeightClass {
     pub name: String,
     pub weight_class: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MeetStatus {
     pub name: String,
     pub status: String,
