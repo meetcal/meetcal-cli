@@ -1,5 +1,5 @@
 // make files in commands/ accesible to main.rs
-pub mod adaptive;
+pub mod adaptive_records;
 pub mod club_results;
 pub mod intl_rankings;
 pub mod meet;

@@ -10,7 +10,7 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    Adaptive(commands::adaptive::AdaptiveArgs),
+    AdaptiveRecords(commands::adaptive_records::AdaptiveArgs),
     ClubResults(commands::club_results::ClubResultsArgs),
     IntlRankings(commands::intl_rankings::IntlRankingsArgs),
     Meet(commands::meet::MeetArgs),

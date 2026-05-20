@@ -1,23 +1,78 @@
-use clap::Parser;
-
 use crate::types::rankings::Rankings;
+use anyhow::{Context, Result, bail};
+use clap::Parser;
+use comfy_table::Table;
+use convex::{ConvexClient, FunctionResult, Value};
+use std::collections::BTreeMap;
 
 /// Search for International Rankings for a given age, meet, and gender.
 ///
 /// Examples:
-///   meetcal intlRankings --age Senior --gender Men --meet Worlds
-///   meetcal intlRankings U17 Women "Pan Ams"
+///   meetcal intl-rankings --age Senior --gender Men --meet Worlds
+///   meetcal intl-rankings U17 Women "Pan Ams"
 #[derive(Parser)]
-#[command(name = "intlRankings")]
+#[command(name = "intl-rankings")]
 pub struct IntlRankingsArgs {
     /// Age group to search for
+    #[arg(long, short = 'a')]
     pub age: String,
 
     /// Gender group to search for
+    #[arg(long, short = 'g')]
     pub gender: String,
 
     /// Meet to search for
+    #[arg(long, short = 'm')]
     pub meet: String,
 }
 
-pub fn run(_args: IntlRankingsArgs, _convex_url: &str) {}
+pub async fn run(args: IntlRankingsArgs, convex_url: &str) -> Result<()> {
+    // assign args to vars
+    let age = args.age;
+    let gender = args.gender;
+    let meet = args.meet;
+
+    // get convex
+    let mut convex = ConvexClient::new(convex_url)
+        .await
+        .context("Error with the convex url")?;
+    let mut query_args = BTreeMap::new();
+
+    //insert args to map
+    query_args.insert("ageCategory".to_string(), Value::from(age));
+    query_args.insert("gender".to_string(), Value::from(gender));
+    query_args.insert("meet".to_string(), Value::from(meet));
+
+    let result = convex.query("intlRankings:getFiltered", query_args).await?;
+
+    // parse value convex
+    let totals: Vec<Rankings> = match result {
+        // convex returns value not string so use serde to parse
+        FunctionResult::Value(val) => {
+            let json_value = serde_json::Value::from(val);
+            serde_json::from_value(json_value)
+                .context("Failed to parse athletes from convex response")?
+        }
+        // bail returns error we can handle vs panic would crash and quit
+        FunctionResult::ErrorMessage(err) => bail!(err),
+        FunctionResult::ConvexError(err) => bail!("ConvexError: {err:?}"),
+    };
+
+    // push to table
+    let mut table = Table::new();
+    table.set_header(vec!["Rank", "Name", "Class", "Percent A", "Total"]);
+
+    for total in totals {
+        table.add_row(vec![
+            total.ranking.to_string(),
+            total.name,
+            total.weight_class,
+            total.percent_a.to_string(),
+            total.total.to_string(),
+        ]);
+    }
+
+    println!("{table}");
+
+    Ok(())
+}

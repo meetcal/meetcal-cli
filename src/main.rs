@@ -10,9 +10,9 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Adaptive(args) => commands::adaptive::run(args, CONVEX_URL),
+        Commands::AdaptiveRecords(args) => commands::adaptive_records::run(args, CONVEX_URL),
         Commands::ClubResults(args) => commands::club_results::run(args, CONVEX_URL),
-        Commands::IntlRankings(args) => commands::intl_rankings::run(args, CONVEX_URL),
+        Commands::IntlRankings(args) => commands::intl_rankings::run(args, CONVEX_URL).await?,
         Commands::Meet(args) => commands::meet::run(args, CONVEX_URL).await?,
         Commands::MeetResults(args) => commands::meet_results::run(args, CONVEX_URL),
         Commands::NatRankings(args) => commands::nat_rankings::run(args, CONVEX_URL),
