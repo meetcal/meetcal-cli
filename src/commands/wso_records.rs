@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::types::records::Record;
+
 /// Search for WSO Records for a given age, wso, and gender.
 ///
 /// Examples:
@@ -18,11 +20,4 @@ pub struct WsoRecordsArgs {
     pub wso: String,
 }
 
-pub fn run(_args: WsoRecordsArgs, _convex_url: &str) {
-    let _carolina_sheet_id = "1rKFzpkLCT-FE2SzM0qpUOoZ788YHl7dg";
-    let _ref_spreadsheet_id = "1ZI9TOZ8Ql-ACxNIcytsPXrWfetZFXyjg";
-    let _ref_gid = "1911965444";
-
-    // youth, junior, senior, masters
-    let _tabs_id: [&str; 4] = ["1785893123", "1157313505", "2109027801", "448005775"];
-}
+pub fn run(_args: WsoRecordsArgs, _convex_url: &str) {}

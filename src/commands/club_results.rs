@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::types::athletes;
+
 /// Analyze club performance stats for a meet.
 ///
 /// Examples:

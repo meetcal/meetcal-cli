@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::types::qual_totals::QualifyingTotal;
+
 /// Search for Qualifying Totals for a given age, gender, and event.
 ///
 /// Examples:

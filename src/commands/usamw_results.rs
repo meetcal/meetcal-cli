@@ -1,5 +1,8 @@
 use clap::Parser;
 
+use crate::types::lifting_results::LiftingResults;
+use crate::types::usamw_results_scraper::PdfTextItem;
+
 /// Export USAMW PDF results as Convex lifting_results seed data.
 #[derive(Parser)]
 #[command(name = "usamwResultsScraper")]

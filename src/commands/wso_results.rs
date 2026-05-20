@@ -1,5 +1,8 @@
 use clap::Parser;
 
+use crate::types::lifting_results::LiftingResults;
+use crate::types::wso::AthleteRow;
+
 /// Get full meet results for a given WSO.
 ///
 /// Examples:

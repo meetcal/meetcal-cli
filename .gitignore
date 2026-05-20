@@ -1,2 +1,3 @@
 /target
-/commands
+/ts
+.DS_Store

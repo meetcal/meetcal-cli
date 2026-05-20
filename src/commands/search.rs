@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::types::lifting_results::LiftingResults;
+
 /// Search for an athlete's name to see their Comp PRs and Results.
 ///
 /// Examples:

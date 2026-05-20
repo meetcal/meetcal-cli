@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::types::lifting_results::LiftingResults;
+
 /// Search for Adaptive American Records for a given weight class and gender.
 ///
 /// Examples:

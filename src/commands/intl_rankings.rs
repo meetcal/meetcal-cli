@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::types::rankings::Rankings;
+
 /// Search for International Rankings for a given age, meet, and gender.
 ///
 /// Examples:

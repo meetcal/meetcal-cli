@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::types::lifting_results::LiftingResults;
+
 /// Search for National Rankings for a given weight.
 ///
 /// Examples:

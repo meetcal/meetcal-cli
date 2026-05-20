@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::types::lifting_results::LiftingResults;
+
 /// Search for results from a meet, returns all athletes' results and event stats.
 ///
 /// Examples:

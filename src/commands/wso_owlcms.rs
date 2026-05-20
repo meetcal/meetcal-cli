@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::types::wso_owlcms::{CarolinaTab, WsoOwlCmsParsedBlock, WsoOwlCmsReferenceMeta};
+
 /// Export Carolina WSO records as an OWLCMS CSV.
 ///
 /// Examples:

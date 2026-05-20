@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use crate::types::records::Record;
+
 /// Search for Records for a given age, federation, and gender.
 ///
 /// Examples:

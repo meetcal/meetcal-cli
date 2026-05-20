@@ -1,0 +1,12 @@
+pub mod athletes;
+pub mod club;
+pub mod club_results;
+pub mod lifting_results;
+pub mod qual_totals;
+pub mod rankings;
+pub mod records;
+pub mod standards;
+pub mod usamw_records;
+pub mod usamw_results_scraper;
+pub mod wso;
+pub mod wso_owlcms;
