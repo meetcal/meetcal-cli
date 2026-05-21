@@ -12,9 +12,9 @@
 
 - [x] meet: get all entries for a meet
 - [x] qualifying-totals: enter meet and class, gender
-- [ ] intl-rankings: meet and age, gender
-- [ ] standards: age, gender
-- [ ] nat-rankings: enter weight and age group, gender and get rankings
+- [x] intl-rankings: meet and age, gender
+- [x] standards: age, gender
+- [x] nat-rankings: enter weight and age group, gender and get rankings
   - [ ] dedup repeated names in nat rankings
 - [ ] records: age, gender
 - [ ] wso-records: wso and age, gender

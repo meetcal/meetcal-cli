@@ -1,6 +1,9 @@
-use clap::Parser;
-
 use crate::types::standards::Standards;
+use anyhow::{Context, Result, bail};
+use clap::Parser;
+use comfy_table::Table;
+use convex::{ConvexClient, FunctionResult, Value};
+use std::collections::BTreeMap;
 
 /// Search for A/B USAW Standards for a given age and gender group.
 ///
@@ -11,10 +14,59 @@ use crate::types::standards::Standards;
 #[command(name = "standards")]
 pub struct StandardsArgs {
     /// Age group to search for
+    #[arg(long, short = 'a')]
     pub age: String,
 
     /// Gender group to search for
+    #[arg(long, short = 'g')]
     pub gender: String,
 }
 
-pub fn run(_args: StandardsArgs, _convex_url: &str) {}
+pub async fn run(args: StandardsArgs, convex_url: &str) -> Result<()> {
+    // assign args to vars
+    let age = args.age.to_ascii_lowercase();
+    let gender = args.gender.to_ascii_lowercase();
+
+    // get convex
+    let mut convex = ConvexClient::new(convex_url)
+        .await
+        .context("Error with the convex url")?;
+    let mut query_args = BTreeMap::new();
+
+    //insert args to map
+    query_args.insert("ageCategory".to_string(), Value::from(age));
+    query_args.insert("gender".to_string(), Value::from(gender));
+
+    let result = convex.query("standards:getFiltered", query_args).await?;
+
+    // parse value convex
+    let mut totals: Vec<Standards> = match result {
+        // convex returns value not string so use serde to parse
+        FunctionResult::Value(val) => {
+            let json_value = serde_json::Value::from(val);
+            serde_json::from_value(json_value)
+                .context("Failed to parse athletes from convex response")?
+        }
+        // bail returns error we can handle vs panic would crash and quit
+        FunctionResult::ErrorMessage(err) => bail!(err),
+        FunctionResult::ConvexError(err) => bail!("ConvexError: {err:?}"),
+    };
+
+    totals.sort_by(|a, b| a.standard_a.total_cmp(&b.standard_a));
+
+    // push to table
+    let mut table = Table::new();
+    table.set_header(vec!["Class", "A", "B"]);
+
+    for total in totals {
+        table.add_row(vec![
+            total.weight_class,
+            total.standard_a.to_string(),
+            total.standard_b.to_string(),
+        ]);
+    }
+
+    println!("{table}");
+
+    Ok(())
+}
