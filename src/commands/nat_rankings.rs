@@ -84,3 +84,93 @@ pub async fn run(args: NatRankingsArgs, convex_url: &str) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    const JSON: &str = r#"[
+        {
+            "id": 1,
+            "convexId": "abc123",
+            "eventId": "evt_1",
+            "federation": "USAW",
+            "legacyId": null,
+            "meet": "American Open Finals",
+            "date": "2025-12-01",
+            "name": "Maddisen",
+            "age": "Open",
+            "bodyWeight": 77.5,
+            "snatch1": 60,
+            "snatch2": 65,
+            "snatch3": 65,
+            "snatchBest": 65,
+            "cj1": 70,
+            "cj2": 75,
+            "cj3": 75,
+            "cjBest": 75,
+            "total": 140,
+            "adaptive": false
+        },
+        {
+            "id": 2,
+            "convexId": "def456",
+            "eventId": "evt_1",
+            "federation": "USAW",
+            "legacyId": null,
+            "meet": "American Open Finals",
+            "date": "2025-12-01",
+            "name": "Nikki",
+            "age": "Open",
+            "bodyWeight": 77.5,
+            "snatch1": 55,
+            "snatch2": 60,
+            "snatch3": 60,
+            "snatchBest": 60,
+            "cj1": 65,
+            "cj2": 70,
+            "cj3": 70,
+            "cjBest": 70,
+            "total": 130,
+            "adaptive": false
+        }
+    ]"#;
+
+    #[test]
+    fn parse_convex() {
+        let rows: Vec<LiftingResults> = serde_json::from_str(JSON).unwrap();
+
+        assert_eq!(rows.len(), 2);
+
+        let row = &rows[0];
+        assert_eq!(row.name, "Maddisen");
+        assert_eq!(row.total, 140.0);
+        assert_eq!(row.federation, "USAW");
+        assert_eq!(row.snatch_best, 65.0);
+        assert_eq!(row.cj_best, 75.0);
+        assert_eq!(row.adaptive, false);
+    }
+
+    #[test]
+    fn sorting() {
+        let mut rows: Vec<LiftingResults> = serde_json::from_str(JSON).unwrap();
+        rows.sort_by(|a, b| b.total.total_cmp(&a.total));
+
+        assert_eq!(rows[0].name, "Maddisen");
+        assert_eq!(rows[0].total, 140.0);
+        assert_eq!(rows[1].name, "Nikki");
+        assert_eq!(rows[1].total, 130.0);
+    }
+
+    #[test]
+    fn rejects_missing_field() {
+        let bad_json = r#"[
+            {
+                "name": "Maddisen"
+            }
+        ]"#;
+
+        let result: Result<Vec<LiftingResults>, _> = serde_json::from_str(bad_json);
+        assert!(result.is_err());
+    }
+}

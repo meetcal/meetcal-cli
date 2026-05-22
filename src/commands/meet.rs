@@ -107,3 +107,51 @@ pub async fn run(args: MeetArgs, convex_url: &str) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const JSON: &str = r#"[
+        {
+            "adaptive": false,
+            "age": 25,
+            "club": "Test Club",
+            "entryTotal": 250,
+            "gender": "Men",
+            "meet": "American Open Finals",
+            "memberId": "12345",
+            "name": "Jane Doe",
+            "sessionNumber": 1,
+            "sessionPlatform": "Red",
+            "weightClass": "81kg",
+            "wso": null
+        }
+    ]"#;
+
+    #[test]
+    fn parse_convex() {
+        let athletes: Vec<Athletes> = serde_json::from_str(JSON).unwrap();
+
+        let row = &athletes[0];
+        assert_eq!(row.name, "Jane Doe");
+        assert_eq!(row.age, 25.0);
+        assert_eq!(row.gender, "Men");
+        assert!(!row.adaptive);
+        assert_eq!(row.club, "Test Club");
+        assert_eq!(row.weight_class, "81kg");
+        assert_eq!(row.entry_total, 250.0);
+        assert_eq!(row.meet, "American Open Finals");
+        assert_eq!(row.member_id, "12345");
+        assert_eq!(row.session_number, Some(1.0));
+        assert!(matches!(row.session_platform, Some(Platform::Red)));
+        assert_eq!(row.wso, None);
+    }
+
+    #[test]
+    fn rejects_missing_field() {
+        let bad_json = r#"[{ "name": "Jane Doe", "gender": "Men" }]"#;
+        let result: Result<Vec<Athletes>, _> = serde_json::from_str(bad_json);
+        assert!(result.is_err());
+    }
+}
