@@ -2,7 +2,7 @@ use anyhow::{Context, Result, bail};
 use clap::Parser;
 use comfy_table::Table;
 use convex::{ConvexClient, FunctionResult, Value};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 
 use crate::types::lifting_results::LiftingResults;
 
@@ -50,13 +50,24 @@ pub async fn run(args: NatRankingsArgs, convex_url: &str) -> Result<()> {
         FunctionResult::ConvexError(err) => bail!("ConvexError: {err:?}"),
     };
 
-    // TODO: reduce names to max value to get all unique entries
-    // get list of unique athlete names filter to find those names return row of Math.max of total
-    // const bestRowsByName = [...rowsByName.values()].map((row) => {
-    //  return row.reduce((best, current) => {
-    //    return current.total > best.total ? current : best
-    //  })
-    // })
+    let mut rows_hash: HashMap<String, LiftingResults> = HashMap::new();
+
+    // if not in map insert, else if name is in map, check total, compare, keep highest
+    for row in totals {
+        if rows_hash.contains_key(&row.name) {
+            // this is the val associated with the key
+            let entry = rows_hash.get_mut(&row.name).unwrap();
+            if row.total > entry.total {
+                *entry = row;
+            }
+        } else {
+            rows_hash.insert(row.name.clone(), row);
+        }
+    }
+
+    // pull out just the vals from the HashMap
+    let mut row_array: Vec<LiftingResults> = rows_hash.into_values().collect();
+    row_array.sort_by(|a, b| b.total.total_cmp(&a.total));
 
     // push to table
     let mut table = Table::new();
@@ -64,8 +75,8 @@ pub async fn run(args: NatRankingsArgs, convex_url: &str) -> Result<()> {
 
     let mut rank = 1;
 
-    for total in totals {
-        table.add_row(vec![rank.to_string(), total.name, total.total.to_string()]);
+    for row in row_array {
+        table.add_row(vec![rank.to_string(), row.name, row.total.to_string()]);
         rank += 1
     }
 

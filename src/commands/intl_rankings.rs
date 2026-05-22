@@ -1,9 +1,19 @@
-use crate::types::rankings::Rankings;
 use anyhow::{Context, Result, bail};
 use clap::Parser;
 use comfy_table::Table;
 use convex::{ConvexClient, FunctionResult, Value};
+use serde::Deserialize;
 use std::collections::BTreeMap;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Rankings {
+    pub ranking: f64,
+    pub name: String,
+    pub weight_class: String,
+    pub percent_a: f64,
+    pub total: f64,
+}
 
 /// Search for International Rankings for a given age, meet, and gender.
 ///

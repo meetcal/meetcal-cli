@@ -1,9 +1,17 @@
-use crate::types::standards::Standards;
 use anyhow::{Context, Result, bail};
 use clap::Parser;
 use comfy_table::Table;
 use convex::{ConvexClient, FunctionResult, Value};
+use serde::Deserialize;
 use std::collections::BTreeMap;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Standards {
+    pub weight_class: String,
+    pub standard_a: f64,
+    pub standard_b: f64,
+}
 
 /// Search for A/B USAW Standards for a given age and gender group.
 ///
@@ -69,4 +77,41 @@ pub async fn run(args: StandardsArgs, convex_url: &str) -> Result<()> {
     println!("{table}");
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const JSON: &str = r#"[
+        {
+            "weightClass": "Senior",
+            "standardA": 140,
+            "standardB": 120
+        }
+    ]"#;
+
+    #[test]
+    fn parse_convex() {
+        let standards: Vec<Standards> = serde_json::from_str(JSON).unwrap();
+
+        let row = &standards[0];
+
+        assert_eq!(row.weight_class, "Senior");
+        assert_eq!(row.standard_a, 140.0);
+        assert_eq!(row.standard_b, 120.0);
+    }
+
+    #[test]
+    fn rejects_missing_field() {
+        let bad_json = r#"[
+            {
+                weightClass: "Senior",
+                standardA: 140,
+            }
+        ]"#;
+
+        let result: Result<Vec<Standards>, _> = serde_json::from_str(bad_json);
+        assert!(result.is_err());
+    }
 }

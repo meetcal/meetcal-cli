@@ -1,9 +1,19 @@
-use crate::types::qual_totals::QualifyingTotal;
 use anyhow::{Context, Result, bail};
 use clap::Parser;
 use comfy_table::Table;
 use convex::{ConvexClient, FunctionResult, Value};
+use serde::Deserialize;
 use std::collections::BTreeMap;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QualifyingTotal {
+    pub qualifying_total: f64,
+    pub event_name: String,
+    pub gender: String,
+    pub age_category: String,
+    pub weight_class: String,
+}
 
 /// Search for Qualifying Totals for a given age, gender, and event.
 ///
@@ -71,4 +81,38 @@ pub async fn run(args: QualTotalsArgs, convex_url: &str) -> Result<()> {
     println!("{table}");
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const JSON: &str = r#"[
+        {
+            "qualifyingTotal": 285,
+            "eventName": "Nationals",
+            "gender": "Men",
+            "ageCategory": "Senior",
+            "weightClass": "81kg"
+        }
+    ]"#;
+
+    #[test]
+    fn parse_convex() {
+        let totals: Vec<QualifyingTotal> = serde_json::from_str(JSON).unwrap();
+
+        let row = &totals[0];
+        assert_eq!(row.qualifying_total, 285.0);
+        assert_eq!(row.event_name, "Nationals");
+        assert_eq!(row.gender, "Men");
+        assert_eq!(row.age_category, "Senior");
+        assert_eq!(row.weight_class, "81kg");
+    }
+
+    #[test]
+    fn rejects_missing_field() {
+        let bad_json = r#"[{ "qualifyingTotal": 285, "gender": "Men" }]"#;
+        let result: Result<Vec<QualifyingTotal>, _> = serde_json::from_str(bad_json);
+        assert!(result.is_err());
+    }
 }
