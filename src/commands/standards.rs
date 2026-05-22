@@ -60,6 +60,7 @@ pub async fn run(args: StandardsArgs, convex_url: &str) -> Result<()> {
         FunctionResult::ConvexError(err) => bail!("ConvexError: {err:?}"),
     };
 
+    // sort by weight class low to high
     totals.sort_by(|a, b| a.standard_a.total_cmp(&b.standard_a));
 
     // push to table
@@ -88,6 +89,11 @@ mod tests {
             "weightClass": "Senior",
             "standardA": 140,
             "standardB": 120
+        },
+        {
+            "weightClass": "Senior",
+            "standardA": 130,
+            "standardB": 110
         }
     ]"#;
 
@@ -100,6 +106,14 @@ mod tests {
         assert_eq!(row.weight_class, "Senior");
         assert_eq!(row.standard_a, 140.0);
         assert_eq!(row.standard_b, 120.0);
+    }
+
+    #[test]
+    fn sorting() {
+        let mut standards: Vec<Standards> = serde_json::from_str(JSON).unwrap();
+        standards.sort_by(|a, b| a.standard_a.total_cmp(&b.standard_a));
+
+        assert_eq!(standards[0].standard_a, 130.0);
     }
 
     #[test]
