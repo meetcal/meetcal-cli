@@ -10,7 +10,6 @@ use std::collections::{BTreeMap, HashMap};
 ///
 /// Examples:
 ///   meetcal records --age Senior --gender Men --federation USAW
-///   meetcal records U17 Women IWF
 #[derive(Parser)]
 #[command(name = "records")]
 pub struct RecordsArgs {

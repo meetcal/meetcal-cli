@@ -21,7 +21,6 @@ pub struct Rankings {
 ///
 /// Examples:
 ///   meetcal intl-rankings --age Senior --gender Men --meet Worlds
-///   meetcal intl-rankings U17 Women "Pan Ams"
 #[derive(Parser)]
 #[command(name = "intl-rankings")]
 pub struct IntlRankingsArgs {

@@ -20,7 +20,6 @@ pub struct QualifyingTotal {
 ///
 /// Examples:
 ///   meetcal qualifying-totals --age Senior --gender Men --event Nationals
-///   meetcal qualifying-totals U17 Women AO Finals
 #[derive(Parser)]
 #[command(name = "qualifying-totals")]
 pub struct QualTotalsArgs {

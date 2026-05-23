@@ -9,13 +9,11 @@ use crate::{commands::convex::get_convex_response, types::lifting_results::Lifti
 /// Search for National Rankings for a given weight.
 ///
 /// Examples:
-///   meetcal nat-rankings --weight-class "Open Men's 110kg"
 ///   meetcal nat-rankings "Junior Women's 77kg"
 #[derive(Parser)]
 #[command(name = "nat-rankings")]
 pub struct NatRankingsArgs {
     /// Weight class to search for
-    #[arg(long, short = 'c')]
     pub weight_class: String,
 }
 

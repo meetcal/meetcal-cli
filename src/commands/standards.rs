@@ -18,7 +18,6 @@ pub struct Standards {
 ///
 /// Examples:
 ///   meetcal standards --age Senior --gender Men
-///   meetcal standards U17 Women
 #[derive(Parser)]
 #[command(name = "standards")]
 pub struct StandardsArgs {

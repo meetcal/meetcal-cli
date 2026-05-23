@@ -11,11 +11,8 @@ use std::collections::BTreeMap;
 /// Search for entries for a meet.
 ///
 /// Examples:
-///   meetcal meet --name "American Open Finals"
-///   meetcal meet --name "2026 Virus Weightlifting Series 2, Powered by Rogue Fitness" --session-number 1 --session-platform Red
+///   meetcal meet "2026 VIRUS Weightlifting Series 1" --session-number 1 --session-platform red
 ///   meetcal meet "2026 Virus Weightlifting Series 2, Powered by Rogue Fitness"
-///   meetcal meet "2026 Virus Weightlifting Series 2, Powered by Rogue Fitness" 1
-///   meetcal meet "2026 Virus Weightlifting Series 2, Powered by Rogue Fitness" 1 Red
 #[derive(Parser)]
 #[command(name = "meet")]
 pub struct MeetArgs {
@@ -32,29 +29,27 @@ pub struct MeetArgs {
 }
 
 pub async fn run(args: MeetArgs) -> Result<()> {
-    // TODO: for whatever reason num and platform are invalid to convex
-    // need to update convex fn through meetcal to allow this
     let meet_name = args.name;
-    // let session_number = args.session_number.map(|n| n as f64);
-    // let session_platform = args.session_platform.map(|p| match p {
-    //     Platform::Red => String::from("Red"),
-    //     Platform::White => String::from("White"),
-    //     Platform::Blue => String::from("Blue"),
-    //     Platform::Stars => String::from("Stars"),
-    //     Platform::Stripes => String::from("Stripes"),
-    //     Platform::Rogue => String::from("Rogue"),
-    // });
+    let session_number = args.session_number.map(|n| n as f64);
+    let session_platform = args.session_platform.map(|p| match p {
+        Platform::Red => String::from("Red"),
+        Platform::White => String::from("White"),
+        Platform::Blue => String::from("Blue"),
+        Platform::Stars => String::from("Stars"),
+        Platform::Stripes => String::from("Stripes"),
+        Platform::Rogue => String::from("Rogue"),
+    });
 
     let mut query_args = BTreeMap::new();
 
     // convexes Value has built in Option so if val then val else null
     // same as sending undefined would be in TS
     query_args.insert("meet".to_string(), Value::from(meet_name));
-    // query_args.insert("sessionNumber".to_string(), Value::from(session_number));
-    // query_args.insert("sessionPlatform".to_string(), Value::from(session_platform));
+    query_args.insert("sessionNumber".to_string(), Value::from(session_number));
+    query_args.insert("sessionPlatform".to_string(), Value::from(session_platform));
 
     let parsed_convex_result: Vec<Athletes> =
-        get_convex_response("athletes:getByMeet", query_args).await?;
+        get_convex_response("athletes:getByMeetAndSession", query_args).await?;
 
     let mut table = Table::new();
     table.set_header(vec![
