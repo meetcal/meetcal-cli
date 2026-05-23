@@ -16,8 +16,9 @@
 - [x] standards: age, gender
 - [x] nat-rankings: enter weight and age group, gender and get rankings
   - [x] dedup repeated names in nat rankings
-- [ ] lib and int testing
+- [x] testing
 - [ ] records: age, gender
+- [ ] add extra meet args
 - [ ] wso-records: wso and age, gender
 - [ ] func to pass num and platform to meet
 - [ ] search: enter athlete name and get PRs and all results

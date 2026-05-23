@@ -1,7 +1,8 @@
-use anyhow::{Context, Result, bail};
+use crate::commands::convex::get_convex_response;
+use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::{ConvexClient, FunctionResult, Value};
+use convex::Value;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
@@ -30,44 +31,28 @@ pub struct StandardsArgs {
     pub gender: String,
 }
 
-pub async fn run(args: StandardsArgs, convex_url: &str) -> Result<()> {
+pub async fn run(args: StandardsArgs) -> Result<()> {
     // assign args to vars
     let age = args.age.to_ascii_lowercase();
     let gender = args.gender.to_ascii_lowercase();
 
-    // get convex
-    let mut convex = ConvexClient::new(convex_url)
-        .await
-        .context("Error with the convex url")?;
     let mut query_args = BTreeMap::new();
 
     //insert args to map
     query_args.insert("ageCategory".to_string(), Value::from(age));
     query_args.insert("gender".to_string(), Value::from(gender));
 
-    let result = convex.query("standards:getFiltered", query_args).await?;
-
-    // parse value convex
-    let mut totals: Vec<Standards> = match result {
-        // convex returns value not string so use serde to parse
-        FunctionResult::Value(val) => {
-            let json_value = serde_json::Value::from(val);
-            serde_json::from_value(json_value)
-                .context("Failed to parse athletes from convex response")?
-        }
-        // bail returns error we can handle vs panic would crash and quit
-        FunctionResult::ErrorMessage(err) => bail!(err),
-        FunctionResult::ConvexError(err) => bail!("ConvexError: {err:?}"),
-    };
+    let mut parsed_convex_result: Vec<Standards> =
+        get_convex_response("standards:getFiltered", query_args).await?;
 
     // sort by weight class low to high
-    totals.sort_by(|a, b| a.standard_a.total_cmp(&b.standard_a));
+    parsed_convex_result.sort_by(|a, b| a.standard_a.total_cmp(&b.standard_a));
 
     // push to table
     let mut table = Table::new();
     table.set_header(vec!["Class", "A", "B"]);
 
-    for total in totals {
+    for total in parsed_convex_result {
         table.add_row(vec![
             total.weight_class,
             total.standard_a.to_string(),

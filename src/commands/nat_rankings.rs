@@ -1,10 +1,10 @@
-use anyhow::{Context, Result, bail};
+use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::{ConvexClient, FunctionResult, Value};
+use convex::Value;
 use std::collections::{BTreeMap, HashMap};
 
-use crate::types::lifting_results::LiftingResults;
+use crate::{commands::convex::get_convex_response, types::lifting_results::LiftingResults};
 
 /// Search for National Rankings for a given weight.
 ///
@@ -19,41 +19,23 @@ pub struct NatRankingsArgs {
     pub weight_class: String,
 }
 
-pub async fn run(args: NatRankingsArgs, convex_url: &str) -> Result<()> {
+pub async fn run(args: NatRankingsArgs) -> Result<()> {
     // assign args to vars
     let class = args.weight_class;
 
-    // get convex
-    let mut convex = ConvexClient::new(convex_url)
-        .await
-        .context("Error with the convex url")?;
     let mut query_args = BTreeMap::new();
 
     //insert args to map
     query_args.insert("ageCategory".to_string(), Value::from(class));
     query_args.insert("federation".to_string(), Value::from("USAW"));
 
-    let result = convex
-        .query("liftingResults:getNationalRankings", query_args)
-        .await?;
-
-    // parse value convex
-    let totals: Vec<LiftingResults> = match result {
-        // convex returns value not string so use serde to parse
-        FunctionResult::Value(val) => {
-            let json_value = serde_json::Value::from(val);
-            serde_json::from_value(json_value)
-                .context("Failed to parse athletes from convex response")?
-        }
-        // bail returns error we can handle vs panic would crash and quit
-        FunctionResult::ErrorMessage(err) => bail!(err),
-        FunctionResult::ConvexError(err) => bail!("ConvexError: {err:?}"),
-    };
+    let parsed_convex_result: Vec<LiftingResults> =
+        get_convex_response("liftingResults:getNationalRankings", query_args).await?;
 
     let mut rows_hash: HashMap<String, LiftingResults> = HashMap::new();
 
     // if not in map insert, else if name is in map, check total, compare, keep highest
-    for row in totals {
+    for row in parsed_convex_result {
         if rows_hash.contains_key(&row.name) {
             // this is the val associated with the key
             let entry = rows_hash.get_mut(&row.name).unwrap();

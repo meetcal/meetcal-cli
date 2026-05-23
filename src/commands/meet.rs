@@ -1,8 +1,11 @@
-use crate::types::athletes::{Athletes, Platform};
-use anyhow::{Context, Result, bail};
+use crate::{
+    commands::convex::get_convex_response,
+    types::athletes::{Athletes, Platform},
+};
+use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::{ConvexClient, FunctionResult, Value};
+use convex::Value;
 use std::collections::BTreeMap;
 
 /// Search for entries for a meet.
@@ -28,7 +31,7 @@ pub struct MeetArgs {
     pub session_platform: Option<Platform>,
 }
 
-pub async fn run(args: MeetArgs, convex_url: &str) -> Result<()> {
+pub async fn run(args: MeetArgs) -> Result<()> {
     // TODO: for whatever reason num and platform are invalid to convex
     // need to update convex fn through meetcal to allow this
     let meet_name = args.name;
@@ -42,12 +45,6 @@ pub async fn run(args: MeetArgs, convex_url: &str) -> Result<()> {
     //     Platform::Rogue => String::from("Rogue"),
     // });
 
-    // context to provide better error messages without panic like expect
-    let mut convex = ConvexClient::new(convex_url)
-        .await
-        .context("Error with the convex url")?;
-    // BTreeMap is similar to hashmap but sorted
-    // little slower but sends in order convex expects
     let mut query_args = BTreeMap::new();
 
     // convexes Value has built in Option so if val then val else null
@@ -56,19 +53,8 @@ pub async fn run(args: MeetArgs, convex_url: &str) -> Result<()> {
     // query_args.insert("sessionNumber".to_string(), Value::from(session_number));
     // query_args.insert("sessionPlatform".to_string(), Value::from(session_platform));
 
-    let result = convex.query("athletes:getByMeet", query_args).await?;
-
-    let athletes: Vec<Athletes> = match result {
-        // convex returns value not string so use serde to parse
-        FunctionResult::Value(val) => {
-            let json_value = serde_json::Value::from(val);
-            serde_json::from_value(json_value)
-                .context("Failed to parse athletes from convex response")?
-        }
-        // bail returns error we can handle vs panic would crash and quit
-        FunctionResult::ErrorMessage(err) => bail!(err),
-        FunctionResult::ConvexError(err) => bail!("ConvexError: {err:?}"),
-    };
+    let parsed_convex_result: Vec<Athletes> =
+        get_convex_response("athletes:getByMeet", query_args).await?;
 
     let mut table = Table::new();
     table.set_header(vec![
@@ -83,7 +69,7 @@ pub async fn run(args: MeetArgs, convex_url: &str) -> Result<()> {
         "Platform",
     ]);
 
-    for athlete in athletes {
+    for athlete in parsed_convex_result {
         table.add_row(vec![
             athlete.name,
             athlete.age.to_string(),
