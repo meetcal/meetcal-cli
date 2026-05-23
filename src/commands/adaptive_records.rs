@@ -14,4 +14,4 @@ pub struct AdaptiveArgs {
     pub gender: String,
 }
 
-pub fn run(_args: AdaptiveArgs, _convex_url: &str) {}
+pub fn run(_args: AdaptiveArgs) {}

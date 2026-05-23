@@ -14,4 +14,4 @@ pub struct SearchArgs {
     pub name: String,
 }
 
-pub fn run(_args: SearchArgs, _convex_url: &str) {}
+pub fn run(_args: SearchArgs) {}

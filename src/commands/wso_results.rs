@@ -18,4 +18,4 @@ pub struct WsoResultsArgs {
     pub wso: String,
 }
 
-pub fn run(_args: WsoResultsArgs, _convex_url: &str) {}
+pub fn run(_args: WsoResultsArgs) {}

@@ -18,4 +18,4 @@ pub struct ClubResultsArgs {
     pub meet: String,
 }
 
-pub fn run(_args: ClubResultsArgs, _convex_url: &str) {}
+pub fn run(_args: ClubResultsArgs) {}

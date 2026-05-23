@@ -14,4 +14,4 @@ pub struct MeetResultsArgs {
     pub name: String,
 }
 
-pub fn run(_args: MeetResultsArgs, _convex_url: &str) {}
+pub fn run(_args: MeetResultsArgs) {}

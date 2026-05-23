@@ -1,7 +1,8 @@
-use anyhow::{Context, Result, bail};
+use crate::commands::convex::get_convex_response;
+use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::{ConvexClient, FunctionResult, Value};
+use convex::Value;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
@@ -36,16 +37,12 @@ pub struct QualTotalsArgs {
     pub event: String,
 }
 
-pub async fn run(args: QualTotalsArgs, convex_url: &str) -> Result<()> {
+pub async fn run(args: QualTotalsArgs) -> Result<()> {
     // assign args to vars
     let age = args.age;
     let gender = args.gender;
     let event = args.event;
 
-    // get convex
-    let mut convex = ConvexClient::new(convex_url)
-        .await
-        .context("Error with the convex url")?;
     let mut query_args = BTreeMap::new();
 
     //insert args to map
@@ -53,28 +50,14 @@ pub async fn run(args: QualTotalsArgs, convex_url: &str) -> Result<()> {
     query_args.insert("gender".to_string(), Value::from(gender));
     query_args.insert("eventName".to_string(), Value::from(event));
 
-    let result = convex
-        .query("qualifyingTotals:getFiltered", query_args)
-        .await?;
-
-    // parse value convex
-    let totals: Vec<QualifyingTotal> = match result {
-        // convex returns value not string so use serde to parse
-        FunctionResult::Value(val) => {
-            let json_value = serde_json::Value::from(val);
-            serde_json::from_value(json_value)
-                .context("Failed to parse athletes from convex response")?
-        }
-        // bail returns error we can handle vs panic would crash and quit
-        FunctionResult::ErrorMessage(err) => bail!(err),
-        FunctionResult::ConvexError(err) => bail!("ConvexError: {err:?}"),
-    };
+    let parsed_convex_result: Vec<QualifyingTotal> =
+        get_convex_response("qualifyingTotals:getFiltered", query_args).await?;
 
     // push to table
     let mut table = Table::new();
     table.set_header(vec!["Class", "Total"]);
 
-    for total in totals {
+    for total in parsed_convex_result {
         table.add_row(vec![total.weight_class, total.qualifying_total.to_string()]);
     }
 

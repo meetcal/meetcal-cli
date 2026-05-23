@@ -22,4 +22,4 @@ pub struct UsamwResultsArgs {
     pub pdf: Vec<String>,
 }
 
-pub fn run(_args: UsamwResultsArgs, _convex_url: &str) {}
+pub fn run(_args: UsamwResultsArgs) {}

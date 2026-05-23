@@ -45,4 +45,4 @@ pub struct WsoOwlCmsParsedBlock {
 #[command(name = "wsoOWLCMS")]
 pub struct WsoOwlcmsArgs {}
 
-pub fn run(_args: WsoOwlcmsArgs, _convex_url: &str) {}
+pub fn run(_args: WsoOwlcmsArgs) {}
