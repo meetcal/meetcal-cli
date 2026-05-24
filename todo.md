@@ -1,4 +1,4 @@
-## 2.0.0
+## 3.0.0
 
 - [ ] wrapped: enter name and get wrapped
 - [ ] club-wrapped
@@ -6,6 +6,18 @@
 - [ ] compare: enter athlete name and 2 years and compare results for 1 year vs other
 - [ ] club-compare
 - [ ] wso-compare
+- [ ] update brew repo, update version, build new release
+
+## 2.0.0
+
+- [x] adap-records
+- [ ] meetResults: enter meet name and get by name list and results
+- [ ] wso: enter wso and get snapshot of results. PRs, total weight lifted, make rate, medal count
+- [ ] convert carolinas wso sheets to owlcms report
+- [ ] convert usamw results scraper
+- [ ] convert pg results scraper
+- [ ] wso - get medal count
+- [ ] add all options for age and federations for help
 - [ ] update brew repo, update version, build new release
 
 ## 1.0.0
@@ -24,12 +36,3 @@
 - [x] func to pass num and platform to meet
 - [x] wso-records: wso and age, gender
 - [x] search: enter athlete name and get PRs and all results
-- [ ] adap-records
-- [ ] meetResults: enter meet name and get by name list and results
-- [ ] wso: enter wso and get snapshot of results. PRs, total weight lifted, make rate, medal count
-- [ ] convert carolinas wso sheets to owlcms report
-- [ ] convert usamw results scraper
-- [ ] convert pg results scraper
-- [ ] wso - get medal count
-- [ ] add all options for age and federations for help
-- [ ] update brew repo, update version, build new release

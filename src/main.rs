@@ -8,7 +8,7 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::AdaptiveRecords(args) => commands::adaptive_records::run(args),
+        Commands::AdaptiveRecords(args) => commands::adaptive_records::run(args).await?,
         Commands::ClubResults(args) => commands::club_results::run(args),
         Commands::IntlRankings(args) => commands::intl_rankings::run(args).await?,
         Commands::Meet(args) => commands::meet::run(args).await?,

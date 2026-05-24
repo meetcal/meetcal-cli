@@ -7,7 +7,10 @@ use convex::Value;
 
 use crate::{
     types::wso::WSORecord,
-    utils::{convex::get_convex_response, sort::weight_class_key},
+    utils::{
+        convex::get_convex_response,
+        sort::{sort_by_class, weight_class_key},
+    },
 };
 
 /// Search for WSO Records for a given age, wso, and gender.
@@ -45,14 +48,14 @@ pub async fn run(args: WsoRecordsArgs) -> Result<()> {
     query_args.insert("gender".to_string(), Value::from(gender));
     query_args.insert("wso".to_string(), Value::from(wso));
 
-    let mut parsed_convex_result: Vec<WSORecord> =
+    let parsed_convex_result: Vec<WSORecord> =
         get_convex_response("wsoRecords:getByWso", query_args).await?;
-    parsed_convex_result.sort_by_key(|record| weight_class_key(&record.weight_class));
+    let sorted = sort_by_class(parsed_convex_result, |r| r.weight_class.as_str());
 
     let mut table = Table::new();
     table.set_header(vec!["Class", "Snatch", "CJ", "Total"]);
 
-    for record in parsed_convex_result {
+    for record in sorted {
         table.add_row(vec![
             record.weight_class.to_string(),
             record.snatch_record.to_string(),

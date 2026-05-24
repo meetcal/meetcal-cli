@@ -25,7 +25,7 @@ pub struct LiftingResults {
     pub adaptive: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct AdaptiveRecord {
     pub weight_class: String,

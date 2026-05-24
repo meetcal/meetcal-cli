@@ -1,4 +1,4 @@
-use crate::utils::sort::weight_class_key;
+use crate::utils::sort::{sort_by_class, weight_class_key};
 use crate::{types::records::Record, utils::convex::get_convex_response};
 use anyhow::Result;
 use clap::Parser;
@@ -38,15 +38,15 @@ pub async fn run(args: RecordsArgs) -> Result<()> {
     query_args.insert("gender".to_string(), Value::from(gender));
     query_args.insert("recordType".to_string(), Value::from(federation));
 
-    let mut parsed_convex_result: Vec<Record> =
+    let parsed_convex_result: Vec<Record> =
         get_convex_response("records:getByFederation", query_args).await?;
 
-    parsed_convex_result.sort_by_key(|record| weight_class_key(&record.weight_class));
+    let sorted = sort_by_class(parsed_convex_result, |r| r.weight_class.as_str());
 
     let mut table = Table::new();
     table.set_header(vec!["Class", "Snatch", "CJ", "Total"]);
 
-    for record in parsed_convex_result {
+    for record in sorted {
         table.add_row(vec![
             record.weight_class,
             record.snatch_record.to_string(),
