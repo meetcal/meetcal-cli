@@ -33,3 +33,9 @@ pub struct AdaptiveRecord {
     pub cj: f64,
     pub total: f64,
 }
+
+pub struct PRs {
+    pub snatch_best: f64,
+    pub cj_best: f64,
+    pub total_best: f64,
+}

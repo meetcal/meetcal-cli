@@ -23,8 +23,7 @@
 - [x] add by fed for rankings
 - [x] func to pass num and platform to meet
 - [x] wso-records: wso and age, gender
-- [ ] search: enter athlete name and get PRs and all results
-  - [ ] add make rates overall and by attempt
+- [x] search: enter athlete name and get PRs and all results
 - [ ] adap-records
 - [ ] meetResults: enter meet name and get by name list and results
 - [ ] wso: enter wso and get snapshot of results. PRs, total weight lifted, make rate, medal count

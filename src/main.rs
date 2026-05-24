@@ -16,7 +16,7 @@ async fn main() -> Result<()> {
         Commands::NatRankings(args) => commands::nat_rankings::run(args).await?,
         Commands::QualifyingTotals(args) => commands::qual_totals::run(args).await?,
         Commands::Records(args) => commands::records::run(args).await?,
-        Commands::Search(args) => commands::search::run(args),
+        Commands::Search(args) => commands::search::run(args).await?,
         Commands::Standards(args) => commands::standards::run(args).await?,
         Commands::UsamwResultsScraper(args) => commands::usamw_results::run(args),
         Commands::Wso(args) => commands::wso_results::run(args),
