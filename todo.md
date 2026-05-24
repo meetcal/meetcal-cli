@@ -18,10 +18,11 @@
   - [x] dedup repeated names in nat rankings
 - [x] testing
 - [x] add extra meet args
-- [ ] records: age, gender
-- [ ] add by fed for records
-- [ ] wso-records: wso and age, gender
-- [ ] func to pass num and platform to meet
+- [x] records: age, gender
+- [x] integration testing
+- [x] add by fed for rankings
+- [x] func to pass num and platform to meet
+- [x] wso-records: wso and age, gender
 - [ ] search: enter athlete name and get PRs and all results
   - [ ] add make rates overall and by attempt
 - [ ] adap-records
@@ -31,4 +32,5 @@
 - [ ] convert usamw results scraper
 - [ ] convert pg results scraper
 - [ ] wso - get medal count
+- [ ] add all options for age and federations for help
 - [ ] update brew repo, update version, build new release

@@ -1,10 +1,10 @@
-use crate::commands::convex::get_convex_response;
-use crate::types::records::Record;
+use crate::utils::sort::weight_class_key;
+use crate::{types::records::Record, utils::convex::get_convex_response};
 use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
 use convex::Value;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 /// Search for Records for a given age, federation, and gender.
 ///
@@ -38,43 +38,22 @@ pub async fn run(args: RecordsArgs) -> Result<()> {
     query_args.insert("gender".to_string(), Value::from(gender));
     query_args.insert("recordType".to_string(), Value::from(federation));
 
-    let parsed_convex_result: Vec<Record> =
+    let mut parsed_convex_result: Vec<Record> =
         get_convex_response("records:getByFederation", query_args).await?;
 
-    // TODO: sort by weight class, find class with + and move to end
-    let mut records_hash: HashMap<i32, Record> = HashMap::new();
-
-    // go through each weight_class
-    // convert to int, if it has a + add 1 so its the largest num
-    for record in parsed_convex_result {
-        let weight = record.weight_class.split_at(record.weight_class.len() - 2);
-        let class_without_kg = weight.0;
-
-        if class_without_kg.contains("+") {
-            let weight_only = class_without_kg.split_at(class_without_kg.len() - 1);
-            let num = weight_only.0.parse::<i32>().unwrap();
-            let should_be_last = num + 1;
-            records_hash.insert(should_be_last, record);
-        } else {
-            let weight_only = class_without_kg.split_at(class_without_kg.len() - 1);
-            let num = weight_only.0.parse().unwrap();
-            records_hash.insert(num, record);
-        }
-    }
-
-    //sort by i32 key
+    parsed_convex_result.sort_by_key(|record| weight_class_key(&record.weight_class));
 
     let mut table = Table::new();
     table.set_header(vec!["Class", "Snatch", "CJ", "Total"]);
 
-    // for record in records {
-    //     table.add_row(vec![
-    //         record.weight_class,
-    //         record.snatch_record.to_string(),
-    //         record.cj_record.to_string(),
-    //         record.total_record.to_string(),
-    //     ]);
-    // }
+    for record in parsed_convex_result {
+        table.add_row(vec![
+            record.weight_class,
+            record.snatch_record.to_string(),
+            record.cj_record.to_string(),
+            record.total_record.to_string(),
+        ]);
+    }
 
     println!("{table}");
 

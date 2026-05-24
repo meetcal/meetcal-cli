@@ -1,10 +1,11 @@
-use crate::commands::convex::get_convex_response;
 use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
 use convex::Value;
 use serde::Deserialize;
 use std::collections::BTreeMap;
+
+use crate::utils::convex::get_convex_response;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]

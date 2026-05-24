@@ -21,7 +21,7 @@ async fn main() -> Result<()> {
         Commands::UsamwResultsScraper(args) => commands::usamw_results::run(args),
         Commands::Wso(args) => commands::wso_results::run(args),
         Commands::WsoOwlcms(args) => commands::wso_owlcms::run(args),
-        Commands::WsoRecords(args) => commands::wso_records::run(args),
+        Commands::WsoRecords(args) => commands::wso_records::run(args).await?,
     }
 
     Ok(())

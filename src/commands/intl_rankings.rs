@@ -5,7 +5,7 @@ use convex::Value;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-use crate::commands::convex::get_convex_response;
+use crate::utils::convex::get_convex_response;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]

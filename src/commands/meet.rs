@@ -1,6 +1,6 @@
 use crate::{
-    commands::convex::get_convex_response,
     types::athletes::{Athletes, Platform},
+    utils::convex::get_convex_response,
 };
 use anyhow::Result;
 use clap::Parser;

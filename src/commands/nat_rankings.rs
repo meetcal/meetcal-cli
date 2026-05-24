@@ -4,7 +4,7 @@ use comfy_table::Table;
 use convex::Value;
 use std::collections::{BTreeMap, HashMap};
 
-use crate::{commands::convex::get_convex_response, types::lifting_results::LiftingResults};
+use crate::{types::lifting_results::LiftingResults, utils::convex::get_convex_response};
 
 /// Search for National Rankings for a given weight.
 ///
@@ -15,17 +15,22 @@ use crate::{commands::convex::get_convex_response, types::lifting_results::Lifti
 pub struct NatRankingsArgs {
     /// Weight class to search for
     pub weight_class: String,
+
+    /// IWF, USAW, USAMW, or UMWF
+    #[arg(long, short = 'f')]
+    pub federation: String,
 }
 
 pub async fn run(args: NatRankingsArgs) -> Result<()> {
     // assign args to vars
     let class = args.weight_class;
+    let federation = args.federation.to_ascii_uppercase();
 
     let mut query_args = BTreeMap::new();
 
     //insert args to map
     query_args.insert("ageCategory".to_string(), Value::from(class));
-    query_args.insert("federation".to_string(), Value::from("USAW"));
+    query_args.insert("federation".to_string(), Value::from(federation));
 
     let parsed_convex_result: Vec<LiftingResults> =
         get_convex_response("liftingResults:getNationalRankings", query_args).await?;
