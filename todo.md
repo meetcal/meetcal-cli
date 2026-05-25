@@ -11,7 +11,7 @@
 ## 2.0.0
 
 - [x] adap-records
-- [ ] meetResults: enter meet name and get by name list and results
+- [x] meetResults: enter meet name and get by name list and results
 - [ ] wso: enter wso and get snapshot of results. PRs, total weight lifted, make rate, medal count
 - [ ] convert carolinas wso sheets to owlcms report
 - [ ] convert usamw results scraper

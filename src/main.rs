@@ -12,7 +12,7 @@ async fn main() -> Result<()> {
         Commands::ClubResults(args) => commands::club_results::run(args),
         Commands::IntlRankings(args) => commands::intl_rankings::run(args).await?,
         Commands::Meet(args) => commands::meet::run(args).await?,
-        Commands::MeetResults(args) => commands::meet_results::run(args),
+        Commands::MeetResults(args) => commands::meet_results::run(args).await?,
         Commands::NatRankings(args) => commands::nat_rankings::run(args).await?,
         Commands::QualifyingTotals(args) => commands::qual_totals::run(args).await?,
         Commands::Records(args) => commands::records::run(args).await?,
