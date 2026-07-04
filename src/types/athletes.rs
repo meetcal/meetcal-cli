@@ -1,9 +1,7 @@
 use clap::ValueEnum;
 use serde::Deserialize;
 
-// convert to camelCase to match convex object
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Athletes {
     pub adaptive: bool,
     pub age: f64,

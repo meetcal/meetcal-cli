@@ -1,14 +1,11 @@
 use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::Value;
 use serde::Deserialize;
-use std::collections::BTreeMap;
 
-use crate::utils::convex::get_convex_response;
+use crate::utils::api::get_api_response;
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct QualifyingTotal {
     pub qualifying_total: f64,
     pub event_name: String,
@@ -43,21 +40,17 @@ pub async fn run(args: QualTotalsArgs) -> Result<()> {
     let gender = args.gender;
     let event = args.event;
 
-    let mut query_args = BTreeMap::new();
-
-    //insert args to map
-    query_args.insert("ageCategory".to_string(), Value::from(age));
-    query_args.insert("gender".to_string(), Value::from(gender));
-    query_args.insert("eventName".to_string(), Value::from(event));
-
-    let parsed_convex_result: Vec<QualifyingTotal> =
-        get_convex_response("qualifyingTotals:getFiltered", query_args).await?;
+    let totals: Vec<QualifyingTotal> = get_api_response("/data/qualifying-totals").await?;
 
     // push to table
     let mut table = Table::new();
     table.set_header(vec!["Class", "Total"]);
 
-    for total in parsed_convex_result {
+    for total in totals.into_iter().filter(|row| {
+        row.age_category.eq_ignore_ascii_case(&age)
+            && row.gender.eq_ignore_ascii_case(&gender)
+            && row.event_name.eq_ignore_ascii_case(&event)
+    }) {
         table.add_row(vec![total.weight_class, total.qualifying_total.to_string()]);
     }
 
@@ -72,16 +65,16 @@ mod tests {
 
     const JSON: &str = r#"[
         {
-            "qualifyingTotal": 285,
-            "eventName": "Nationals",
+            "qualifying_total": 285,
+            "event_name": "Nationals",
             "gender": "Men",
-            "ageCategory": "Senior",
-            "weightClass": "81kg"
+            "age_category": "Senior",
+            "weight_class": "81kg"
         }
     ]"#;
 
     #[test]
-    fn parse_convex() {
+    fn parse_backend_response() {
         let totals: Vec<QualifyingTotal> = serde_json::from_str(JSON).unwrap();
 
         let row = &totals[0];
@@ -94,7 +87,7 @@ mod tests {
 
     #[test]
     fn rejects_missing_field() {
-        let bad_json = r#"[{ "qualifyingTotal": 285, "gender": "Men" }]"#;
+        let bad_json = r#"[{ "qualifying_total": 285, "gender": "Men" }]"#;
         let result: Result<Vec<QualifyingTotal>, _> = serde_json::from_str(bad_json);
         assert!(result.is_err());
     }

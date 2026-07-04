@@ -1,6 +1,6 @@
 # MeetCal CLI
 
-Rust command line tool for querying MeetCal lifting data from Convex.
+Rust command line tool for querying MeetCal lifting data from the MeetCal backend.
 
 ## Install
 

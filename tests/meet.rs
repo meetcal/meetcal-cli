@@ -32,7 +32,7 @@ fn parses_meet_with_flags() {
     };
 
     assert_eq!(args.name, "2026 VIRUS Weightlifting Series 1");
-    assert_eq!(args.session_number, Some(1.0));
+    assert_eq!(args.session_number, Some("1".to_string()));
     assert!(matches!(args.session_platform, Some(Platform::Red)));
 }
 

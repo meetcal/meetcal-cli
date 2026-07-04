@@ -1,16 +1,10 @@
-use std::collections::BTreeMap;
-
 use crate::{
     types::lifting_results::{LiftingResults, PRs},
-    utils::{
-        convex::get_convex_response,
-        make_rate::{calc_make_rate, calc_make_rate_by_attempt, print_make_rate},
-    },
+    utils::{api::get_api_response_with_query, make_rate::print_make_rate},
 };
 use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::Value;
 
 /// Search for an athlete's name to see their Comp PRs and Results.
 ///
@@ -26,12 +20,9 @@ pub struct SearchArgs {
 pub async fn run(args: SearchArgs) -> Result<()> {
     let name = args.name;
 
-    let mut query_args = BTreeMap::new();
-
-    query_args.insert("name".to_string(), Value::from(name));
-
-    let parsed_convex_result: Vec<LiftingResults> =
-        get_convex_response("liftingResults:getByName", query_args).await?;
+    let query_args = [("names", name)];
+    let results: Vec<LiftingResults> =
+        get_api_response_with_query("/lifting-results/by-names", &query_args).await?;
 
     let mut meets_table = Table::new();
 
@@ -39,7 +30,7 @@ pub async fn run(args: SearchArgs) -> Result<()> {
         "Meet", "Date", "Age", "Sn1", "Sn2", "Sn3", "CJ1", "CJ2", "CJ3", "Total",
     ]);
 
-    for meet in &parsed_convex_result {
+    for meet in &results {
         meets_table.add_row(vec![
             meet.meet.to_string(),
             meet.date.to_string(),
@@ -60,7 +51,7 @@ pub async fn run(args: SearchArgs) -> Result<()> {
 
     pr_table.set_header(vec!["Snatch PR", "CJ PR", "Total PR"]);
 
-    let prs = get_prs(&parsed_convex_result);
+    let prs = get_prs(&results);
 
     pr_table.add_row(vec![
         prs.snatch_best.to_string(),
@@ -70,7 +61,7 @@ pub async fn run(args: SearchArgs) -> Result<()> {
 
     println!("{pr_table}");
 
-    print_make_rate(&parsed_convex_result);
+    print_make_rate(&results);
 
     Ok(())
 }

@@ -11,5 +11,3 @@ pub mod standards;
 pub mod usamw_results;
 pub mod wso_records;
 pub mod wso_results;
-
-const BASE_URL: &str = "https://api.meetcal.app/";

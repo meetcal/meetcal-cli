@@ -1,10 +1,8 @@
-use crate::utils::sort::{sort_by_class, weight_class_key};
-use crate::{types::records::Record, utils::convex::get_convex_response};
+use crate::utils::sort::sort_by_class;
+use crate::{types::records::Record, utils::api::get_api_response};
 use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::Value;
-use std::collections::BTreeMap;
 
 /// Search for Records for a given age, federation, and gender.
 ///
@@ -27,21 +25,17 @@ pub struct RecordsArgs {
 }
 
 pub async fn run(args: RecordsArgs) -> Result<()> {
-    let age = args.age.to_ascii_lowercase();
-    let gender = args.gender.to_ascii_lowercase();
+    let age = args.age;
+    let gender = args.gender;
     let federation = args.federation.to_ascii_uppercase();
 
-    let mut query_args = BTreeMap::new();
-
-    //insert args to map
-    query_args.insert("ageCategory".to_string(), Value::from(age));
-    query_args.insert("gender".to_string(), Value::from(gender));
-    query_args.insert("recordType".to_string(), Value::from(federation));
-
-    let parsed_convex_result: Vec<Record> =
-        get_convex_response("records:getByFederation", query_args).await?;
-
-    let sorted = sort_by_class(parsed_convex_result, |r| r.weight_class.as_str());
+    let records: Vec<Record> = get_api_response("/data/records").await?;
+    let filtered = records.into_iter().filter(|row| {
+        row.age_category.eq_ignore_ascii_case(&age)
+            && row.gender.eq_ignore_ascii_case(&gender)
+            && row.record_type.eq_ignore_ascii_case(&federation)
+    });
+    let sorted = sort_by_class(filtered.collect(), |r| r.weight_class.as_str());
 
     let mut table = Table::new();
     table.set_header(vec!["Class", "Snatch", "CJ", "Total"]);

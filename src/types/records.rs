@@ -1,7 +1,6 @@
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Record {
     pub weight_class: String,
     pub snatch_record: f64,

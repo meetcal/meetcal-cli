@@ -1,13 +1,12 @@
-use std::collections::{BTreeMap, HashMap};
-use std::{iter, process};
+use std::collections::HashMap;
+use std::process;
 
-use anyhow::{Error, Result, bail};
+use anyhow::{Error, Result};
 use clap::Parser;
-use convex::Value;
 
 use crate::types::athletes::Athletes;
 use crate::types::lifting_results::LiftingResults;
-use crate::utils::convex::get_convex_response;
+use crate::utils::api::get_api_response_with_query;
 
 /// Get full meet results for a given WSO.
 ///
@@ -30,7 +29,7 @@ pub async fn run(args: WsoResultsArgs) -> Result<()> {
 
     let wso_athlete_names = get_wso_athletes(&wso, &meet).await?;
 
-    let results = get_lifting_results(&wso_athlete_names).await?;
+    let _results = get_lifting_results(&wso_athlete_names).await?;
 
     // TODO: let pr_stats = calculate_prs(&wso_athlete_names, &results, &meet);
     // TODO: compute make rate + total weight lifted from pr_stats.target_meet_rows
@@ -41,23 +40,20 @@ pub async fn run(args: WsoResultsArgs) -> Result<()> {
 }
 
 pub async fn get_wso_athletes(wso: &str, meet: &str) -> Result<Vec<String>, Error> {
-    let mut wso_args = BTreeMap::new();
+    let query_args = [("meet", meet)];
+    let athletes: Vec<Athletes> =
+        get_api_response_with_query("/meets/athletes", &query_args).await?;
+    let wso_athletes: Vec<Athletes> = athletes
+        .into_iter()
+        .filter(|row| row.wso.as_deref() == Some(wso))
+        .collect();
 
-    wso_args.insert("meet".to_string(), Value::from(meet));
-    wso_args.insert("wso".to_string(), Value::from(wso));
-
-    let parsed_convex_response_wso: Vec<Athletes> =
-        get_convex_response("athletes:getByWsoAndMeet", wso_args).await?;
-
-    if parsed_convex_response_wso.is_empty() {
+    if wso_athletes.is_empty() {
         eprintln!("No athletes from the WSO in this meet");
         process::exit(1);
     }
 
-    let wso_athlete_names: Vec<String> = parsed_convex_response_wso
-        .iter()
-        .map(|row| row.name.clone())
-        .collect();
+    let wso_athlete_names: Vec<String> = wso_athletes.iter().map(|row| row.name.clone()).collect();
 
     Ok(wso_athlete_names)
 }
@@ -65,21 +61,13 @@ pub async fn get_wso_athletes(wso: &str, meet: &str) -> Result<Vec<String>, Erro
 pub async fn get_lifting_results(
     wso_athlete_names: &[String],
 ) -> Result<HashMap<String, Vec<LiftingResults>>, Error> {
-    let mut athlete_args = BTreeMap::new();
-
-    let names: Vec<Value> = wso_athlete_names
-        .iter()
-        .map(|n| Value::from(n.clone()))
-        .collect();
-
-    athlete_args.insert("names".to_string(), Value::from(names));
-
-    let parsed_convex_response_athletes: Vec<LiftingResults> =
-        get_convex_response("liftingResults:getByNames", athlete_args).await?;
+    let query_args = [("names", wso_athlete_names.join(","))];
+    let lifting_results: Vec<LiftingResults> =
+        get_api_response_with_query("/lifting-results/by-names", &query_args).await?;
 
     let mut results: HashMap<String, Vec<LiftingResults>> = HashMap::new();
 
-    for result in parsed_convex_response_athletes {
+    for result in lifting_results {
         let name = result.name.clone();
 
         results.entry(name).or_default().push(result);
@@ -117,11 +105,8 @@ pub fn calculate_current_best(
 pub fn calculate_prs(
     wso_athlete_names: &[String],
     results: &HashMap<String, Vec<LiftingResults>>,
-    meet: &str,
+    _meet: &str,
 ) {
-    let mut snatch_pr_count = 0;
-    let mut cj_pr_count = 0;
-    let mut total_pr_count = 0;
     // TODO: let mut pr_details = Vec::new();
     // TODO: let mut target_meet_rows = Vec::new();
     // TODO: let mut missing_names = Vec::new();

@@ -1,12 +1,11 @@
 use crate::{
     types::athletes::{Athletes, Platform},
-    utils::convex::get_convex_response,
+    utils::api::get_api_response_with_query,
 };
 use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::Value;
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 
 /// Search for entries for a meet.
 ///
@@ -21,7 +20,7 @@ pub struct MeetArgs {
 
     /// Session number to search for
     #[arg(long, short = 's')]
-    pub session_number: Option<f32>,
+    pub session_number: Option<String>,
 
     /// Session platform to search for
     #[arg(long, short = 'p')]
@@ -30,7 +29,7 @@ pub struct MeetArgs {
 
 pub async fn run(args: MeetArgs) -> Result<()> {
     let meet_name = args.name;
-    let session_number = args.session_number.map(|n| n as f64);
+    let session_number = args.session_number;
     let session_platform = args.session_platform.map(|p| match p {
         Platform::Red => String::from("Red"),
         Platform::White => String::from("White"),
@@ -40,16 +39,17 @@ pub async fn run(args: MeetArgs) -> Result<()> {
         Platform::Rogue => String::from("Rogue"),
     });
 
-    let mut query_args = BTreeMap::new();
+    let mut query_args = HashMap::new();
+    query_args.insert("meet", meet_name);
+    if session_number.is_some() {
+        query_args.insert("session_number", session_number.unwrap_or("1".to_string()));
+    }
+    if session_platform.is_some() {
+        query_args.insert("platform", session_platform.unwrap_or("Red".to_string()));
+    }
 
-    // convexes Value has built in Option so if val then val else null
-    // same as sending undefined would be in TS
-    query_args.insert("meet".to_string(), Value::from(meet_name));
-    query_args.insert("sessionNumber".to_string(), Value::from(session_number));
-    query_args.insert("sessionPlatform".to_string(), Value::from(session_platform));
-
-    let parsed_convex_result: Vec<Athletes> =
-        get_convex_response("athletes:getByMeetAndSession", query_args).await?;
+    let response: Vec<Athletes> =
+        get_api_response_with_query("/meets/athletes-sessions", &query_args).await?;
 
     let mut table = Table::new();
     table.set_header(vec![
@@ -64,7 +64,7 @@ pub async fn run(args: MeetArgs) -> Result<()> {
         "Platform",
     ]);
 
-    for athlete in parsed_convex_result {
+    for athlete in response {
         table.add_row(vec![
             athlete.name,
             athlete.age.to_string(),
@@ -98,20 +98,20 @@ mod tests {
             "adaptive": false,
             "age": 25,
             "club": "Test Club",
-            "entryTotal": 250,
+            "entry_total": 250,
             "gender": "Men",
             "meet": "American Open Finals",
-            "memberId": "12345",
+            "member_id": "12345",
             "name": "Jane Doe",
-            "sessionNumber": 1,
-            "sessionPlatform": "Red",
-            "weightClass": "81kg",
+            "session_number": 1,
+            "session_platform": "Red",
+            "weight_class": "81kg",
             "wso": null
         }
     ]"#;
 
     #[test]
-    fn parse_convex() {
+    fn parse_backend_response() {
         let athletes: Vec<Athletes> = serde_json::from_str(JSON).unwrap();
 
         let row = &athletes[0];

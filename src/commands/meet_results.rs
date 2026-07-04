@@ -1,13 +1,10 @@
-use std::collections::BTreeMap;
-
 use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::Value;
 
 use crate::{
     types::lifting_results::LiftingResults,
-    utils::{convex::get_convex_response, make_rate::print_make_rate},
+    utils::{api::get_api_response_with_query, make_rate::print_make_rate},
 };
 
 /// Search for results from a meet, returns all athletes' results and event stats.
@@ -24,14 +21,11 @@ pub struct MeetResultsArgs {
 pub async fn run(args: MeetResultsArgs) -> Result<()> {
     let name = args.name;
 
-    let mut query_args = BTreeMap::new();
+    let query_args = [("meet", name)];
+    let mut results: Vec<LiftingResults> =
+        get_api_response_with_query("/lifting-results", &query_args).await?;
 
-    query_args.insert("meet".to_string(), Value::from(name));
-
-    let mut parsed_convex_result: Vec<LiftingResults> =
-        get_convex_response("liftingResults:getByMeet", query_args).await?;
-
-    parsed_convex_result.sort_by(|a, b| b.total.total_cmp(&a.total));
+    results.sort_by(|a, b| b.total.total_cmp(&a.total));
 
     let mut meet_table = Table::new();
 
@@ -39,7 +33,7 @@ pub async fn run(args: MeetResultsArgs) -> Result<()> {
         "Name", "Class", "BW", "Adaptive", "Sn1", "Sn2", "Sn3", "CJ1", "CJ2", "CJ3", "Total",
     ]);
 
-    for result in &parsed_convex_result {
+    for result in &results {
         meet_table.add_row(vec![
             result.name.to_string(),
             result.age.to_string(),
@@ -57,7 +51,7 @@ pub async fn run(args: MeetResultsArgs) -> Result<()> {
 
     println!("{meet_table}");
 
-    print_make_rate(&parsed_convex_result);
+    print_make_rate(&results);
 
     Ok(())
 }

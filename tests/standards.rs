@@ -3,14 +3,7 @@ use meetcal::parser::{Cli, Commands};
 
 #[test]
 fn parses_standards_with_flags() {
-    let cli = Cli::parse_from([
-        "meetcal",
-        "standards",
-        "--age",
-        "Senior",
-        "--gender",
-        "Men",
-    ]);
+    let cli = Cli::parse_from(["meetcal", "standards", "--age", "Senior", "--gender", "Men"]);
 
     let Commands::Standards(args) = cli.command else {
         panic!("expected standards command");

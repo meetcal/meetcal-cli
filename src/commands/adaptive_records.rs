@@ -1,15 +1,12 @@
-use std::collections::{BTreeMap, HashMap};
 use std::sync::LazyLock;
 
 use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::Value;
 use regex::Regex;
 
 use crate::types::lifting_results::AdaptiveRecord;
-use crate::utils::sort::sort_by_class;
-use crate::{types::lifting_results::LiftingResults, utils::convex::get_convex_response};
+use crate::utils::api::get_api_response_with_query;
 
 static MEN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(?i)\bmen\b").unwrap());
 static WOMEN: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(?i)\bwomen\b").unwrap());
@@ -30,48 +27,18 @@ pub struct AdaptiveArgs {
 pub async fn run(args: AdaptiveArgs) -> Result<()> {
     let gender = args.gender;
 
-    let mut query_args = BTreeMap::new();
-
-    query_args.insert("gender".to_string(), Value::from(gender.clone()));
-
-    let parsed_convex_response: Vec<LiftingResults> =
-        get_convex_response("liftingResults:getAdaptive", BTreeMap::new()).await?;
-
-    let mut records: HashMap<String, AdaptiveRecord> = HashMap::new();
-
-    let filtered = parsed_convex_response
-        .iter()
-        .filter(|g| extract_gender(g.age.as_str(), gender.as_str()))
-        .filter(|y| extract_year(y.date.as_str()) >= 2025);
-
-    for row in filtered {
-        let class = extract_class(row.age.as_str()).unwrap();
-
-        let current = records.get(&class).cloned().unwrap_or(AdaptiveRecord {
-            weight_class: class.clone(),
-            snatch: 0.0,
-            cj: 0.0,
-            total: 0.0,
-        });
-
-        records.insert(
-            class.to_string(),
-            AdaptiveRecord {
-                weight_class: class.to_string(),
-                snatch: current.snatch.max(row.snatch_best),
-                cj: current.cj.max(row.cj_best),
-                total: current.total.max(row.total),
-            },
-        );
-    }
-
-    let sorted = sort_by_class(records.into_values().collect(), |r| r.weight_class.as_str());
+    let query_args = [
+        ("exclude_federation", "BWL".to_string()),
+        ("gender", gender),
+    ];
+    let records: Vec<AdaptiveRecord> =
+        get_api_response_with_query("/data/adaptive", &query_args).await?;
 
     let mut table = Table::new();
 
     table.set_header(vec!["Weight Class", "Snatch", "CJ", "Total"]);
 
-    for record in sorted {
+    for record in records {
         table.add_row(vec![
             record.weight_class.to_string(),
             record.snatch.to_string(),

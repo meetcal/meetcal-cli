@@ -1,10 +1,15 @@
 use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::Value;
-use std::collections::{BTreeMap, HashMap};
+use serde::Deserialize;
 
-use crate::{types::lifting_results::LiftingResults, utils::convex::get_convex_response};
+use crate::utils::api::get_api_response_with_query;
+
+#[derive(Debug, Deserialize)]
+pub struct NatRanking {
+    pub name: String,
+    pub total: f64,
+}
 
 /// Search for National Rankings for a given weight.
 ///
@@ -26,33 +31,9 @@ pub async fn run(args: NatRankingsArgs) -> Result<()> {
     let class = args.weight_class;
     let federation = args.federation.to_ascii_uppercase();
 
-    let mut query_args = BTreeMap::new();
-
-    //insert args to map
-    query_args.insert("ageCategory".to_string(), Value::from(class));
-    query_args.insert("federation".to_string(), Value::from(federation));
-
-    let parsed_convex_result: Vec<LiftingResults> =
-        get_convex_response("liftingResults:getNationalRankings", query_args).await?;
-
-    let mut rows_hash: HashMap<String, LiftingResults> = HashMap::new();
-
-    // if not in map insert, else if name is in map, check total, compare, keep highest
-    for row in parsed_convex_result {
-        if rows_hash.contains_key(&row.name) {
-            // this is the val associated with the key
-            let entry = rows_hash.get_mut(&row.name).unwrap();
-            if row.total > entry.total {
-                *entry = row;
-            }
-        } else {
-            rows_hash.insert(row.name.clone(), row);
-        }
-    }
-
-    // pull out just the vals from the HashMap
-    let mut row_array: Vec<LiftingResults> = rows_hash.into_values().collect();
-    row_array.sort_by(|a, b| b.total.total_cmp(&a.total));
+    let query_args = [("age_category", class), ("federation", federation)];
+    let row_array: Vec<NatRanking> =
+        get_api_response_with_query("/data/nat-rankings", &query_args).await?;
 
     // push to table
     let mut table = Table::new();
@@ -76,69 +57,29 @@ mod test {
 
     const JSON: &str = r#"[
         {
-            "id": 1,
-            "convexId": "abc123",
-            "eventId": "evt_1",
-            "federation": "USAW",
-            "legacyId": null,
-            "meet": "American Open Finals",
-            "date": "2025-12-01",
             "name": "Maddisen",
-            "age": "Open",
-            "bodyWeight": 77.5,
-            "snatch1": 60,
-            "snatch2": 65,
-            "snatch3": 65,
-            "snatchBest": 65,
-            "cj1": 70,
-            "cj2": 75,
-            "cj3": 75,
-            "cjBest": 75,
-            "total": 140,
-            "adaptive": false
+            "total": 140
         },
         {
-            "id": 2,
-            "convexId": "def456",
-            "eventId": "evt_1",
-            "federation": "USAW",
-            "legacyId": null,
-            "meet": "American Open Finals",
-            "date": "2025-12-01",
             "name": "Nikki",
-            "age": "Open",
-            "bodyWeight": 77.5,
-            "snatch1": 55,
-            "snatch2": 60,
-            "snatch3": 60,
-            "snatchBest": 60,
-            "cj1": 65,
-            "cj2": 70,
-            "cj3": 70,
-            "cjBest": 70,
-            "total": 130,
-            "adaptive": false
+            "total": 130
         }
     ]"#;
 
     #[test]
-    fn parse_convex() {
-        let rows: Vec<LiftingResults> = serde_json::from_str(JSON).unwrap();
+    fn parse_backend_response() {
+        let rows: Vec<NatRanking> = serde_json::from_str(JSON).unwrap();
 
         assert_eq!(rows.len(), 2);
 
         let row = &rows[0];
         assert_eq!(row.name, "Maddisen");
         assert_eq!(row.total, 140.0);
-        assert_eq!(row.federation, "USAW");
-        assert_eq!(row.snatch_best, 65.0);
-        assert_eq!(row.cj_best, 75.0);
-        assert_eq!(row.adaptive, false);
     }
 
     #[test]
     fn sorting() {
-        let mut rows: Vec<LiftingResults> = serde_json::from_str(JSON).unwrap();
+        let mut rows: Vec<NatRanking> = serde_json::from_str(JSON).unwrap();
         rows.sort_by(|a, b| b.total.total_cmp(&a.total));
 
         assert_eq!(rows[0].name, "Maddisen");
@@ -155,7 +96,7 @@ mod test {
             }
         ]"#;
 
-        let result: Result<Vec<LiftingResults>, _> = serde_json::from_str(bad_json);
+        let result: Result<Vec<NatRanking>, _> = serde_json::from_str(bad_json);
         assert!(result.is_err());
     }
 }

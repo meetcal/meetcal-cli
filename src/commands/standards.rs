@@ -1,18 +1,17 @@
 use anyhow::Result;
 use clap::Parser;
 use comfy_table::Table;
-use convex::Value;
 use serde::Deserialize;
-use std::collections::BTreeMap;
 
-use crate::utils::convex::get_convex_response;
+use crate::utils::api::get_api_response;
 
 #[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Standards {
     pub weight_class: String,
     pub standard_a: f64,
     pub standard_b: f64,
+    pub age_category: String,
+    pub gender: String,
 }
 
 /// Search for A/B USAW Standards for a given age and gender group.
@@ -33,26 +32,24 @@ pub struct StandardsArgs {
 
 pub async fn run(args: StandardsArgs) -> Result<()> {
     // assign args to vars
-    let age = args.age.to_ascii_lowercase();
-    let gender = args.gender.to_ascii_lowercase();
-
-    let mut query_args = BTreeMap::new();
-
-    //insert args to map
-    query_args.insert("ageCategory".to_string(), Value::from(age));
-    query_args.insert("gender".to_string(), Value::from(gender));
-
-    let mut parsed_convex_result: Vec<Standards> =
-        get_convex_response("standards:getFiltered", query_args).await?;
+    let age = args.age;
+    let gender = args.gender;
+    let standards: Vec<Standards> = get_api_response("/data/standards").await?;
+    let mut filtered: Vec<Standards> = standards
+        .into_iter()
+        .filter(|row| {
+            row.age_category.eq_ignore_ascii_case(&age) && row.gender.eq_ignore_ascii_case(&gender)
+        })
+        .collect();
 
     // sort by weight class low to high
-    parsed_convex_result.sort_by(|a, b| a.standard_a.total_cmp(&b.standard_a));
+    filtered.sort_by(|a, b| a.standard_a.total_cmp(&b.standard_a));
 
     // push to table
     let mut table = Table::new();
     table.set_header(vec!["Class", "A", "B"]);
 
-    for total in parsed_convex_result {
+    for total in filtered {
         table.add_row(vec![
             total.weight_class,
             total.standard_a.to_string(),
@@ -71,19 +68,23 @@ mod tests {
 
     const JSON: &str = r#"[
         {
-            "weightClass": "Senior",
-            "standardA": 140,
-            "standardB": 120
+            "weight_class": "Senior",
+            "standard_a": 140,
+            "standard_b": 120,
+            "age_category": "Senior",
+            "gender": "Men"
         },
         {
-            "weightClass": "Senior",
-            "standardA": 130,
-            "standardB": 110
+            "weight_class": "Senior",
+            "standard_a": 130,
+            "standard_b": 110,
+            "age_category": "Senior",
+            "gender": "Men"
         }
     ]"#;
 
     #[test]
-    fn parse_convex() {
+    fn parse_backend_response() {
         let standards: Vec<Standards> = serde_json::from_str(JSON).unwrap();
 
         let row = &standards[0];
@@ -105,8 +106,8 @@ mod tests {
     fn rejects_missing_field() {
         let bad_json = r#"[
             {
-                weightClass: "Senior",
-                standardA: 140,
+                "weight_class": "Senior",
+                "standard_a": 140
             }
         ]"#;
 
