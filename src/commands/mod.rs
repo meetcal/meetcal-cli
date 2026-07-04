@@ -1,4 +1,3 @@
-// make files in commands/ accesible to main.rs
 pub mod adaptive_records;
 pub mod club_results;
 pub mod intl_rankings;
@@ -10,6 +9,7 @@ pub mod records;
 pub mod search;
 pub mod standards;
 pub mod usamw_results;
-pub mod wso_owlcms;
 pub mod wso_records;
 pub mod wso_results;
+
+const BASE_URL: &str = "https://api.meetcal.app/";
