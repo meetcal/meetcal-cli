@@ -2,6 +2,9 @@
 
 Rust command line tool for querying MeetCal lifting data from the MeetCal backend.
 
+MeetCal CLI 2.0 adds calendar-year Wrapped reports and year-over-year comparisons for athletes,
+clubs, and Weightlifting State Organizations (WSOs).
+
 ## Install
 
 ### Homebrew
@@ -45,7 +48,11 @@ meetcal --version
 
 ## Commands
 
-### `search`
+Run `meetcal <command> --help` for the complete arguments accepted by any command.
+
+### Athlete reports
+
+#### `search`
 
 Search for an athlete by name. Prints meet results, comp PRs, and make rates.
 
@@ -53,7 +60,36 @@ Search for an athlete by name. Prints meet results, comp PRs, and make rates.
 meetcal search "Maddisen Mohnsen"
 ```
 
-### `meet`
+#### `wrapped`
+
+Show an athlete's Weightlifting Wrapped for a calendar year. The report includes meets competed,
+make rate, total weight lifted, best lifts, average total, top meet, first-to-last improvement,
+longest make streak, favorite attempt, and year status.
+
+```sh
+meetcal wrapped "Maddisen Mohnsen"
+meetcal wrapped "Maddisen Mohnsen" --year 2025
+```
+
+Options:
+
+- `--year`, `-y`: Calendar year to summarize; defaults to the current calendar year
+
+#### `compare`
+
+Compare an athlete's current calendar year with the previous calendar year. Every metric includes
+the percentage difference when the previous year has a non-zero baseline.
+
+```sh
+meetcal compare "Maddisen Mohnsen"
+```
+
+The comparison years are fixed to the current and previous calendar years. In 2026, for example,
+the command compares 2026 with 2025.
+
+### Meet reports
+
+#### `meet`
 
 Search meet entries by meet name. Optionally filter by session number and platform.
 
@@ -67,7 +103,100 @@ Options:
 - `--session-number`, `-s`: Session number
 - `--session-platform`, `-p`: Platform (`red`, `white`, `blue`, `stars`, `stripes`, `rogue`)
 
-### `records`
+#### `meet-results`
+
+Show all lifting results and event statistics for a meet.
+
+```sh
+meetcal meet-results "2026 AZ Summer Slam Nationals Qualifier"
+```
+
+### Club reports
+
+#### `club-results`
+
+Analyze a club's performance at one meet, including athletes, make rates, volume, PRs, medals, and
+individual result details.
+
+```sh
+meetcal club-results \
+  --club "POWER AND GRACE PERFORMANCE." \
+  --meet "2025 UMWF World Championships"
+```
+
+Options:
+
+- `--club`, `-c`: Exact club name
+- `--meet`, `-m`: Exact meet name
+
+#### `club-wrapped`
+
+Show a club's calendar-year Wrapped report. It includes athlete count, meets, make rate, total
+weight lifted, best lifts, average total, and top meet.
+
+```sh
+meetcal club-wrapped "Columbus Weightlifting"
+meetcal club-wrapped "Columbus Weightlifting" --year 2025
+```
+
+Options:
+
+- `--year`, `-y`: Calendar year to summarize; defaults to the current calendar year
+
+#### `club-compare`
+
+Compare a club's current calendar year with the previous calendar year, including percentage
+differences for athletes, volume, meets, make rate, best lifts, and average total.
+
+```sh
+meetcal club-compare "POWER AND GRACE PERFORMANCE."
+```
+
+### WSO reports
+
+#### `wso`
+
+Analyze one WSO's athletes at a meet. The report includes meet participation, make rates, total
+weight lifted, PRs, medals, and athlete detail.
+
+```sh
+meetcal wso \
+  "2026 Masters National Championships & National University Championships" \
+  --wso Carolina
+```
+
+MeetCal resolves combined USA Weightlifting registration events to their individual results meets,
+such as Masters Nationals and National University Championships.
+
+Options:
+
+- `--wso`, `-w`: Exact WSO name
+
+#### `wso-wrapped`
+
+Show a WSO's calendar-year Wrapped report.
+
+```sh
+meetcal wso-wrapped Carolina
+meetcal wso-wrapped Carolina --year 2025
+```
+
+Options:
+
+- `--year`, `-y`: Calendar year to summarize; defaults to the current calendar year
+
+#### `wso-compare`
+
+Compare a WSO's current calendar year with the previous calendar year and show percentage
+differences for every metric.
+
+```sh
+meetcal wso-compare Carolina
+```
+
+### Records, rankings, and standards
+
+#### `records`
 
 Search records by age group, gender, and federation.
 
@@ -81,7 +210,7 @@ Options:
 - `--gender`, `-g`: Gender
 - `--federation`, `-f`: `IWF`, `USAW`, `USAMW`, or `UMWF`
 
-### `standards`
+#### `standards`
 
 Search USAW A/B standards for an age group and gender.
 
@@ -94,7 +223,7 @@ Options:
 - `--age`, `-a`: Age group
 - `--gender`, `-g`: Gender
 
-### `qualifying-totals`
+#### `qualifying-totals`
 
 Search qualifying totals for an age group, gender, and event.
 
@@ -108,7 +237,7 @@ Options:
 - `--gender`, `-g`: Gender
 - `--event`, `-e`: Event name
 
-### `nat-rankings`
+#### `nat-rankings`
 
 Search national rankings for a weight class and federation.
 
@@ -118,9 +247,9 @@ meetcal nat-rankings "Junior Women's 77kg" --federation USAW
 
 Options:
 
-- `--federation`, `-f`: `IWF`, `USAW`, `USAMW`, or `UMWF`
+- `--federation`, `-f`: `USAW` or `USAMW`
 
-### `intl-rankings`
+#### `intl-rankings`
 
 Search international rankings for an age group, gender, and meet.
 
@@ -134,12 +263,12 @@ Options:
 - `--gender`, `-g`: Gender
 - `--meet`, `-m`: Meet name
 
-### `wso-records`
+#### `wso-records`
 
 Search WSO records by age group, gender, and WSO region.
 
 ```sh
-meetcal wso-records --age Senior --gender Men --wso Carolinas
+meetcal wso-records --age Senior --gender Men --wso Carolina
 ```
 
 Options:
@@ -148,10 +277,29 @@ Options:
 - `--gender`, `-g`: `Men` or `Women`
 - `--wso`, `-w`: WSO region (e.g. `Carolina`, `Florida`)
 
+#### `adaptive-records`
+
+Search Adaptive American Records by gender.
+
+```sh
+meetcal adaptive-records Women
+```
+
+### Data import
+
+#### `usamw-results-scraper`
+
+Convert a USAMW PDF results file into backend `lifting_results` seed data. This is a maintainer
+tool; run its command-specific help before using it.
+
+```sh
+meetcal usamw-results-scraper --help
+```
+
 ## Development
 
 ```sh
-cargo test
+just check-all
 cargo run -- search "Maddisen Mohnsen"
 cargo build --release
 ```
