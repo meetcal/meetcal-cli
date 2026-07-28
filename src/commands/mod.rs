@@ -1,5 +1,9 @@
 pub mod adaptive_records;
+pub mod club_compare;
 pub mod club_results;
+pub mod club_wrapped;
+pub mod compare;
+pub mod group_wrapped;
 pub mod intl_rankings;
 pub mod meet;
 pub mod meet_results;
@@ -9,5 +13,8 @@ pub mod records;
 pub mod search;
 pub mod standards;
 pub mod usamw_results;
+pub mod wrapped;
+pub mod wso_compare;
 pub mod wso_records;
 pub mod wso_results;
+pub mod wso_wrapped;
