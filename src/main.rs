@@ -19,6 +19,7 @@ async fn main() -> Result<()> {
         Commands::Search(args) => commands::search::run(args).await?,
         Commands::Standards(args) => commands::standards::run(args).await?,
         Commands::UsamwResultsScraper(args) => commands::usamw_results::run(args),
+        Commands::Wrapped(args) => commands::wrapped::run(args).await?,
         Commands::Wso(args) => commands::wso_results::run(args).await?,
         Commands::WsoRecords(args) => commands::wso_records::run(args).await?,
     }

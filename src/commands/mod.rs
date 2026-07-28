@@ -9,5 +9,6 @@ pub mod records;
 pub mod search;
 pub mod standards;
 pub mod usamw_results;
+pub mod wrapped;
 pub mod wso_records;
 pub mod wso_results;

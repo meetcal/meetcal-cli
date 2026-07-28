@@ -5,4 +5,5 @@ pub mod lifting_results;
 pub mod records;
 pub mod usamw_records;
 pub mod usamw_results_scraper;
+pub mod wrapped;
 pub mod wso;

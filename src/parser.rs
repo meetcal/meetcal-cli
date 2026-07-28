@@ -21,6 +21,7 @@ pub enum Commands {
     Search(commands::search::SearchArgs),
     Standards(commands::standards::StandardsArgs),
     UsamwResultsScraper(commands::usamw_results::UsamwResultsArgs),
+    Wrapped(commands::wrapped::WrappedArgs),
     Wso(commands::wso_results::WsoResultsArgs),
     WsoRecords(commands::wso_records::WsoRecordsArgs),
 }
