@@ -8,6 +8,7 @@ use crate::types::athletes::Athletes;
 use crate::types::lifting_results::LiftingResults;
 use crate::types::wso::{ClubMedalDetail, ClubPrDetail, Movement};
 use crate::utils::api::get_api_response_with_query;
+use crate::utils::meet_names::{equivalent_meets, result_meet_aliases};
 
 const RESULTS_REQUEST_BATCH_SIZE: usize = 50;
 
@@ -85,13 +86,6 @@ pub async fn run(args: WsoResultsArgs) -> Result<()> {
             &medals,
         )
     );
-
-    if !pr_stats.missing_names.is_empty() {
-        eprintln!(
-            "No lifting results found for: {}",
-            pr_stats.missing_names.join(", ")
-        );
-    }
 
     Ok(())
 }
@@ -177,8 +171,13 @@ pub async fn get_lifting_results(
 }
 
 pub async fn get_meet_results(meet: &str) -> Result<Vec<LiftingResults>> {
-    let query_args = [("meet", meet)];
-    get_api_response_with_query("/lifting-results", &query_args).await
+    let mut results = Vec::new();
+    for alias in result_meet_aliases(meet) {
+        let query_args = [("meet", alias)];
+        let mut rows = get_api_response_with_query("/lifting-results", &query_args).await?;
+        results.append(&mut rows);
+    }
+    Ok(results)
 }
 
 pub fn is_pr(current: Option<f64>, previous: Option<f64>) -> bool {
@@ -205,7 +204,6 @@ pub fn calculate_prs<'a>(
     results: &'a HashMap<String, Vec<LiftingResults>>,
     meet: &str,
 ) -> PrStats<'a> {
-    let normalized_meet = normalize(meet);
     let mut stats = PrStats::default();
 
     for name in wso_athlete_names {
@@ -215,7 +213,7 @@ pub fn calculate_prs<'a>(
             .unwrap_or_default();
         let (current_rows, prior_rows): (Vec<_>, Vec<_>) = history
             .iter()
-            .partition(|row| normalize(&row.meet) == normalized_meet);
+            .partition(|row| equivalent_meets(meet, &row.meet));
 
         if current_rows.is_empty() {
             stats.missing_names.push(name.clone());
@@ -666,6 +664,41 @@ mod tests {
 
         assert_eq!(stats.target_meet_rows.len(), 1);
         assert!(stats.missing_names.is_empty());
+    }
+
+    #[test]
+    fn calculate_prs_uses_split_results_for_combined_masters_and_university_event() {
+        let registration =
+            "2026 Masters National Championships & National University Championships";
+        let history = HashMap::from([(
+            normalize("Jane Doe"),
+            vec![
+                result(
+                    "Jane Doe",
+                    "2025 State Championships",
+                    "Open",
+                    75.0,
+                    95.0,
+                    170.0,
+                ),
+                result(
+                    "Jane Doe",
+                    "The 2026 National University Championships",
+                    "Open",
+                    80.0,
+                    100.0,
+                    180.0,
+                ),
+            ],
+        )]);
+
+        let stats = calculate_prs(&["Jane Doe".into()], &history, registration);
+
+        assert_eq!(stats.target_meet_rows.len(), 1);
+        assert!(stats.missing_names.is_empty());
+        assert_eq!(stats.snatch_count, 1);
+        assert_eq!(stats.cj_count, 1);
+        assert_eq!(stats.total_count, 1);
     }
 
     #[test]
