@@ -1,4 +1,5 @@
 pub mod adaptive_records;
+pub mod club_compare;
 pub mod club_results;
 pub mod club_wrapped;
 pub mod compare;

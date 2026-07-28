@@ -11,6 +11,7 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     AdaptiveRecords(commands::adaptive_records::AdaptiveArgs),
+    ClubCompare(commands::club_compare::ClubCompareArgs),
     ClubResults(commands::club_results::ClubResultsArgs),
     ClubWrapped(commands::club_wrapped::ClubWrappedArgs),
     Compare(commands::compare::CompareArgs),
