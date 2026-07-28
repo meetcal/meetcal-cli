@@ -9,12 +9,10 @@ use crate::commands::wrapped::current_year;
 /// Compare a club's current calendar year with the previous calendar year.
 ///
 /// Examples:
-///   meetcal club-compare --club "POWER AND GRACE PERFORMANCE."
+///   meetcal club-compare "POWER AND GRACE PERFORMANCE."
 #[derive(Parser)]
 #[command(name = "club-compare")]
 pub struct ClubCompareArgs {
-    /// Exact club name
-    #[arg(long, short = 'c')]
     pub club: String,
 }
 

@@ -11,7 +11,6 @@ use crate::{
 ///
 /// Examples:
 ///   meetcal wso-records --age Senior --gender Men --wso Carolinas
-///   meetcal wso-records U17 Women Carolinas
 #[derive(Parser)]
 #[command(name = "wso-records")]
 pub struct WsoRecordsArgs {

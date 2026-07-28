@@ -3,12 +3,7 @@ use meetcal::parser::{Cli, Commands};
 
 #[test]
 fn parses_club_wrapped_with_default_year() {
-    let cli = Cli::parse_from([
-        "meetcal",
-        "club-wrapped",
-        "--club",
-        "Columbus Weightlifting",
-    ]);
+    let cli = Cli::parse_from(["meetcal", "club-wrapped", "Columbus Weightlifting"]);
 
     let Commands::ClubWrapped(args) = cli.command else {
         panic!("expected club-wrapped command");
@@ -23,7 +18,6 @@ fn parses_club_wrapped_with_year() {
     let cli = Cli::parse_from([
         "meetcal",
         "club-wrapped",
-        "--club",
         "Columbus Weightlifting",
         "--year",
         "2025",

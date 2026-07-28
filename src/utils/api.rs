@@ -3,6 +3,7 @@ use serde::{Serialize, de::DeserializeOwned};
 
 const DEFAULT_API_BASE_URL: &str = "https://api.meetcal.app";
 
+/// path: /route
 pub async fn get_api_response<T>(path: &str) -> Result<Vec<T>, Error>
 where
     T: DeserializeOwned,
@@ -23,6 +24,8 @@ where
         .with_context(|| format!("Failed to parse MeetCal backend response from {path}"))
 }
 
+/// path: /route
+/// query: array of tuples
 pub async fn get_api_response_with_query<T, Q>(path: &str, query: &Q) -> Result<Vec<T>, Error>
 where
     T: DeserializeOwned,
