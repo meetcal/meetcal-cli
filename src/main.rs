@@ -25,6 +25,7 @@ async fn main() -> Result<()> {
         Commands::Wrapped(args) => commands::wrapped::run(args).await?,
         Commands::Wso(args) => commands::wso_results::run(args).await?,
         Commands::WsoRecords(args) => commands::wso_records::run(args).await?,
+        Commands::WsoWrapped(args) => commands::wso_wrapped::run(args).await?,
     }
 
     Ok(())

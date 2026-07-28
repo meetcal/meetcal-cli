@@ -16,3 +16,4 @@ pub mod usamw_results;
 pub mod wrapped;
 pub mod wso_records;
 pub mod wso_results;
+pub mod wso_wrapped;

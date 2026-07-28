@@ -27,4 +27,5 @@ pub enum Commands {
     Wrapped(commands::wrapped::WrappedArgs),
     Wso(commands::wso_results::WsoResultsArgs),
     WsoRecords(commands::wso_records::WsoRecordsArgs),
+    WsoWrapped(commands::wso_wrapped::WsoWrappedArgs),
 }

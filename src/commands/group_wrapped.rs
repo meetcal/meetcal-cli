@@ -34,6 +34,10 @@ pub async fn get_club_memberships(club: &str) -> Result<Vec<ClubMembership>> {
     get_json("/clubs/athletes", &[("club", club)]).await
 }
 
+pub async fn get_wso_memberships(wso: &str) -> Result<Vec<ClubMembership>> {
+    get_json("/wsos/athletes", &[("wso", wso)]).await
+}
+
 pub async fn get_recent_results(
     names: &[String],
     cutoff_date: &str,
@@ -55,6 +59,21 @@ pub async fn get_club_results_since(
     cutoff_date: &str,
 ) -> Result<(Vec<ClubMembership>, Vec<LiftingResults>)> {
     let memberships = get_club_memberships(club).await?;
+    get_membership_results_since(memberships, cutoff_date).await
+}
+
+pub async fn get_wso_results_since(
+    wso: &str,
+    cutoff_date: &str,
+) -> Result<(Vec<ClubMembership>, Vec<LiftingResults>)> {
+    let memberships = get_wso_memberships(wso).await?;
+    get_membership_results_since(memberships, cutoff_date).await
+}
+
+async fn get_membership_results_since(
+    memberships: Vec<ClubMembership>,
+    cutoff_date: &str,
+) -> Result<(Vec<ClubMembership>, Vec<LiftingResults>)> {
     let mut seen = HashSet::new();
     let names: Vec<_> = memberships
         .iter()
