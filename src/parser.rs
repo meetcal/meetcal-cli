@@ -26,6 +26,7 @@ pub enum Commands {
     UsamwResultsScraper(commands::usamw_results::UsamwResultsArgs),
     Wrapped(commands::wrapped::WrappedArgs),
     Wso(commands::wso_results::WsoResultsArgs),
+    WsoCompare(commands::wso_compare::WsoCompareArgs),
     WsoRecords(commands::wso_records::WsoRecordsArgs),
     WsoWrapped(commands::wso_wrapped::WsoWrappedArgs),
 }

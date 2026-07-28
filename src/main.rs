@@ -24,6 +24,7 @@ async fn main() -> Result<()> {
         Commands::UsamwResultsScraper(args) => commands::usamw_results::run(args),
         Commands::Wrapped(args) => commands::wrapped::run(args).await?,
         Commands::Wso(args) => commands::wso_results::run(args).await?,
+        Commands::WsoCompare(args) => commands::wso_compare::run(args).await?,
         Commands::WsoRecords(args) => commands::wso_records::run(args).await?,
         Commands::WsoWrapped(args) => commands::wso_wrapped::run(args).await?,
     }

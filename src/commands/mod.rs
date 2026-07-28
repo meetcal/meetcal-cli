@@ -14,6 +14,7 @@ pub mod search;
 pub mod standards;
 pub mod usamw_results;
 pub mod wrapped;
+pub mod wso_compare;
 pub mod wso_records;
 pub mod wso_results;
 pub mod wso_wrapped;
