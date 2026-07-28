@@ -12,6 +12,7 @@ pub struct Cli {
 pub enum Commands {
     AdaptiveRecords(commands::adaptive_records::AdaptiveArgs),
     ClubResults(commands::club_results::ClubResultsArgs),
+    ClubWrapped(commands::club_wrapped::ClubWrappedArgs),
     Compare(commands::compare::CompareArgs),
     IntlRankings(commands::intl_rankings::IntlRankingsArgs),
     Meet(commands::meet::MeetArgs),

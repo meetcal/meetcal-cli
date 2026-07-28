@@ -10,6 +10,7 @@ async fn main() -> Result<()> {
     match cli.command {
         Commands::AdaptiveRecords(args) => commands::adaptive_records::run(args).await?,
         Commands::ClubResults(args) => commands::club_results::run(args).await?,
+        Commands::ClubWrapped(args) => commands::club_wrapped::run(args).await?,
         Commands::Compare(args) => commands::compare::run(args).await?,
         Commands::IntlRankings(args) => commands::intl_rankings::run(args).await?,
         Commands::Meet(args) => commands::meet::run(args).await?,
