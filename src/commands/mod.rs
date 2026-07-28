@@ -1,5 +1,6 @@
 pub mod adaptive_records;
 pub mod club_results;
+pub mod compare;
 pub mod intl_rankings;
 pub mod meet;
 pub mod meet_results;

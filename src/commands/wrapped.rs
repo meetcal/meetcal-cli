@@ -57,12 +57,7 @@ pub async fn get_athlete_year(name: &str, year: i32) -> Result<SearchResponse> {
 }
 
 pub fn exact_name_results(name: &str, response: SearchResponse) -> Result<Vec<LiftingResults>> {
-    let normalized_name = normalize(name);
-    let results: Vec<_> = response
-        .results
-        .into_iter()
-        .filter(|row| normalize(&row.name) == normalized_name)
-        .collect();
+    let results = filter_exact_name(name, response.results);
 
     if results.is_empty() && !response.suggestions.is_empty() {
         bail!(
@@ -72,6 +67,14 @@ pub fn exact_name_results(name: &str, response: SearchResponse) -> Result<Vec<Li
     }
 
     Ok(results)
+}
+
+pub fn filter_exact_name(name: &str, results: Vec<LiftingResults>) -> Vec<LiftingResults> {
+    let normalized_name = normalize(name);
+    results
+        .into_iter()
+        .filter(|row| normalize(&row.name) == normalized_name)
+        .collect()
 }
 
 pub fn calculate_wrapped_stats(results: &[LiftingResults]) -> WrappedStats {
