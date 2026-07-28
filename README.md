@@ -285,17 +285,6 @@ Search Adaptive American Records by gender.
 meetcal adaptive-records Women
 ```
 
-### Data import
-
-#### `usamw-results-scraper`
-
-Convert a USAMW PDF results file into backend `lifting_results` seed data. This is a maintainer
-tool; run its command-specific help before using it.
-
-```sh
-meetcal usamw-results-scraper --help
-```
-
 ## Development
 
 ```sh
