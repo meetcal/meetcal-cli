@@ -15,13 +15,13 @@ use crate::{
 #[derive(Parser)]
 #[command(name = "wso-records")]
 pub struct WsoRecordsArgs {
-    /// Age group to search for
-    /// U11, U13, U15, U17, Junior, Senior, Masters 35, Masters 40, etc
+    /// Age group: U11, U13, U15, U17, Youth, Junior, Senior, Masters 35,
+    /// Masters 40, Masters 45, Masters 50, Masters 55, Masters 60, Masters 65,
+    /// Masters 70, Masters 75, Masters 80, Masters 85, or Masters 90
     #[arg(long, short = 'a')]
     pub age: String,
 
-    /// Gender group to search for
-    /// Men, Women
+    /// Gender: Men or Women
     #[arg(long, short = 'g')]
     pub gender: String,
 

@@ -21,7 +21,7 @@ pub struct NatRankingsArgs {
     /// Weight class to search for
     pub weight_class: String,
 
-    /// IWF, USAW, USAMW, or UMWF
+    /// Federation: USAW or USAMW
     #[arg(long, short = 'f')]
     pub federation: String,
 }

@@ -24,11 +24,11 @@ pub struct Rankings {
 #[derive(Parser)]
 #[command(name = "intl-rankings")]
 pub struct IntlRankingsArgs {
-    /// Age group to search for
+    /// Age group: U15, U17, Youth, Junior, University, or Senior
     #[arg(long, short = 'a')]
     pub age: String,
 
-    /// Gender group to search for
+    /// Gender: Men or Women
     #[arg(long, short = 'g')]
     pub gender: String,
 

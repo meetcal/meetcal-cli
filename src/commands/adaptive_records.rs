@@ -20,7 +20,7 @@ static WEIGHT_CLASS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(?i)\b(\d+\
 #[derive(Parser)]
 #[command(name = "adaptive-records")]
 pub struct AdaptiveArgs {
-    /// Gender to search for
+    /// Gender: Men or Women
     pub gender: String,
 }
 

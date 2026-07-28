@@ -11,15 +11,18 @@ use comfy_table::Table;
 #[derive(Parser)]
 #[command(name = "records")]
 pub struct RecordsArgs {
-    /// Age group to search for
+    /// Age group: U13, U15, U17, U20, U23, Youth, Junior, University, Senior,
+    /// Masters 30, Masters 35, Masters 40, Masters 45, Masters 50, Masters 55,
+    /// Masters 60, Masters 65, Masters 70, Masters 75, Masters 80, Masters 85,
+    /// or Masters 90
     #[arg(long, short = 'a')]
     pub age: String,
 
-    /// Gender group to search for
+    /// Gender: Men or Women
     #[arg(long, short = 'g')]
     pub gender: String,
 
-    /// IWF, USAW, USAMW, or UMWF
+    /// Federation: BWL, IWF, UMWF, USAMW, or USAW
     #[arg(long, short = 'f')]
     pub federation: String,
 }

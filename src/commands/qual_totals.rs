@@ -21,11 +21,13 @@ pub struct QualifyingTotal {
 #[derive(Parser)]
 #[command(name = "qualifying-totals")]
 pub struct QualTotalsArgs {
-    /// Age group to search for
+    /// Age group: U11, U13, U15, U17, U23, U25, Junior, University, Senior,
+    /// Masters 35, Masters 40, Masters 45, Masters 50, Masters 55, Masters 60,
+    /// Masters 65, Masters 70, Masters 75, Masters 80, Masters 85, or Masters 90
     #[arg(long, short = 'a')]
     pub age: String,
 
-    /// Gender group to search for
+    /// Gender: Men or Women
     #[arg(long, short = 'g')]
     pub gender: String,
 

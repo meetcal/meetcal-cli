@@ -21,11 +21,11 @@ pub struct Standards {
 #[derive(Parser)]
 #[command(name = "standards")]
 pub struct StandardsArgs {
-    /// Age group to search for
+    /// Age group: U15, Youth, Junior, or Senior
     #[arg(long, short = 'a')]
     pub age: String,
 
-    /// Gender group to search for
+    /// Gender: Men or Women
     #[arg(long, short = 'g')]
     pub gender: String,
 }
