@@ -9,6 +9,7 @@ use crate::commands::wrapped::calculate_wrapped_stats;
 use crate::types::lifting_results::LiftingResults;
 use crate::types::wrapped::WrappedStats;
 use crate::utils::backend::get_json;
+use crate::utils::meet_names::equivalent_meets;
 
 const RESULTS_REQUEST_BATCH_SIZE: usize = 50;
 
@@ -71,15 +72,20 @@ pub fn filter_membership_results(
     memberships: &[ClubMembership],
     results: Vec<LiftingResults>,
 ) -> Vec<LiftingResults> {
-    let represented_pairs: HashSet<_> = memberships
+    let represented_athletes: HashSet<_> = memberships
         .iter()
-        .map(|membership| (normalize(&membership.name), normalize(&membership.meet)))
+        .map(|membership| normalize(&membership.name))
         .collect();
 
     results
         .into_iter()
         .filter(|result| {
-            represented_pairs.contains(&(normalize(&result.name), normalize(&result.meet)))
+            let name = normalize(&result.name);
+            represented_athletes.contains(&name)
+                && memberships.iter().any(|membership| {
+                    normalize(&membership.name) == name
+                        && equivalent_meets(&membership.meet, &result.meet)
+                })
         })
         .collect()
 }
@@ -303,6 +309,33 @@ mod tests {
 
         assert_eq!(filtered.len(), 1);
         assert_eq!(filtered[0].total, 170.0);
+    }
+
+    #[test]
+    fn includes_split_national_results_for_the_registered_club() {
+        let memberships = vec![membership(
+            "Jane Doe",
+            "2026 USA Weightlifting National Championships, Powered by Rogue Fitness",
+        )];
+        let results = vec![
+            result(
+                "Jane Doe",
+                "The 2026 National Junior Championships, Powered by Rogue Fitness",
+                "2026-06-24",
+                175.0,
+            ),
+            result(
+                "Jane Doe",
+                "The 2026 National University Championships",
+                "2026-04-18",
+                180.0,
+            ),
+        ];
+
+        let filtered = filter_membership_results(&memberships, results);
+
+        assert_eq!(filtered.len(), 1);
+        assert_eq!(filtered[0].total, 175.0);
     }
 
     #[test]
