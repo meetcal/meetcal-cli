@@ -15,7 +15,7 @@ pub struct NatRankingYear {
 /// Search for National Rankings for a given weight.
 ///
 /// Examples:
-///   meetcal nat-rankings "Junior Women's 77kg"
+///   meetcal nat-rankings "Junior Women's 77kg" --federation USAW --year 2026
 #[derive(Parser)]
 #[command(name = "nat-rankings-year")]
 pub struct NatRankingsYearArgs {
