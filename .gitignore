@@ -3,3 +3,4 @@
 /commands
 .DS_Store
 temp.rs
+.direnv/
