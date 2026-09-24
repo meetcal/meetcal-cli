@@ -1,10 +1,9 @@
-use anyhow::{Context, Result, bail};
+use anyhow::{Result, bail};
 use clap::Parser;
 use comfy_table::Table;
 
 use crate::types::club::ClubMeetStats;
-
-const CLUB_MEET_STATS_URL: &str = "https://api.meetcal.app/clubs/meet-stats";
+use crate::utils::backend::get_json;
 
 /// Analyze club performance stats for a meet.
 ///
@@ -30,19 +29,7 @@ pub async fn run(args: ClubResultsArgs) -> Result<()> {
 }
 
 pub async fn get_club_meet_stats(club: &str, meet: &str) -> Result<ClubMeetStats> {
-    let response = reqwest::Client::new()
-        .get(CLUB_MEET_STATS_URL)
-        .query(&[("club", club), ("meet", meet)])
-        .send()
-        .await
-        .context("Failed to call MeetCal backend route /clubs/meet-stats")?
-        .error_for_status()
-        .context("MeetCal backend route /clubs/meet-stats returned an error")?;
-
-    response
-        .json()
-        .await
-        .context("Failed to parse MeetCal backend response from /clubs/meet-stats")
+    get_json("/clubs/meet-stats", &[("club", club), ("meet", meet)]).await
 }
 
 pub fn validate_stats(stats: &ClubMeetStats, club: &str, meet: &str) -> Result<()> {
